@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="music_name">Music name, placeholder</string>
+    <string name="artist_name">Artist name, placeholder</string>
 </resources>
