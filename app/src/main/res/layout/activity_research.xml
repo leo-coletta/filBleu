@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:background="@color/shadowGrey"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+        <ImageView
+            android:id="@+id/app_logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/filbleu_logo"
+            android:layout_margin="7dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+        </ImageView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:text="J"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:layout_margin="7dp"
+            app:cornerRadius="25dp"
+            app:backgroundTint="@color/bleuMain"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/topbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/white"
+        android:layout_margin="10dp"/>
+
+
+    <LinearLayout
+        android:id="@+id/music_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:gravity="center"
+        android:background="@color/night_blue" >
+
+        <ImageView
+            android:id="@+id/music_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            app:srcCompat="@drawable/music_image_placeholder" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp"
+
+            >
+
+            <TextView
+                android:id="@+id/music_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/music_name"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/artist_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/artist_name"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/back" />
+
+        <ImageButton
+            android:id="@+id/play_pause_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/pause" />
+
+        <ImageButton
+            android:id="@+id/next_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/next" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="10dp"
+        android:background="@color/black"
+        >
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/loupe_logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="30dp"
+            >
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/home_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/home_logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/playlists_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bibliotheque_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="30dp">
+        </ImageButton>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
