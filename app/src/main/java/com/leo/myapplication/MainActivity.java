@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ImageButton searchButton = findViewById(R.id.search_button);
+        
 
         searchButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);

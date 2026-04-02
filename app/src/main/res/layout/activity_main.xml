@@ -25,22 +25,19 @@
             app:layout_constraintTop_toTopOf="parent">
         </ImageView>
 
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/profile_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:text="J"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
+            android:src="@drawable/profile_icon"
+            android:background="@drawable/circular_image_button"
             android:layout_margin="7dp"
-            app:cornerRadius="25dp"
             app:backgroundTint="@color/bleuMain"
             app:layout_constraintEnd_toEndOf="parent"
+            android:scaleType="centerInside"
             app:layout_constraintTop_toTopOf="parent"
             />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
