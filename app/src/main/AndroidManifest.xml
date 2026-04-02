@@ -15,6 +15,9 @@
         android:theme="@style/Theme.MyApplication"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".MusicDisplayActivity"
+            android:exported="false" />
+        <activity
             android:name=".ResearchActivity"
             android:exported="false" />
         <activity
