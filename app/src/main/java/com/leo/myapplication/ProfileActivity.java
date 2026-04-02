@@ -41,6 +41,7 @@ public class ProfileActivity extends AppCompatActivity {
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton homeButton = findViewById(R.id.home_button);
+        Button musicButton = findViewById(R.id.music_display_button);
 
         homeButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), MainActivity.class);
@@ -54,6 +55,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         libraryButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), LibraryActivity.class);
+            startActivity(intent);
+        });
+
+        musicButton.setOnClickListener( click -> {
+            Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
             startActivity(intent);
         });
 
