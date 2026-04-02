@@ -1,5 +1,6 @@
 package com.leo.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +37,25 @@ public class ProfileActivity extends AppCompatActivity {
         oldPasswordField = findViewById(R.id.old_password_field);
         newPasswordField = findViewById(R.id.new_password_field);
         savePasswordButton = findViewById(R.id.save_password_button);
+
+        ImageButton searchButton = findViewById(R.id.search_button);
+        ImageButton libraryButton = findViewById(R.id.playlists_button);
+        ImageButton homeButton = findViewById(R.id.home_button);
+
+        homeButton.setOnClickListener( click -> {
+            Intent intent = new Intent( getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        });
+
+        searchButton.setOnClickListener( click -> {
+            Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);
+            startActivity(intent);
+        });
+
+        libraryButton.setOnClickListener( click -> {
+            Intent intent = new Intent( getApplicationContext(), LibraryActivity.class);
+            startActivity(intent);
+        });
 
         editUsername.setOnClickListener(v -> {
             usernameField.setEnabled(true);

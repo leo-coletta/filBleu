@@ -17,6 +17,10 @@
         <activity
             android:name=".ResearchActivity"
             android:exported="false" />
+
+        <activity android:name=".LibraryActivity" />
+        <activity android:name=".ProfileActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
