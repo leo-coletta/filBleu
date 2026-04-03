@@ -3,18 +3,18 @@ package com.leo.myapplication;
 public class Song {
     private String title;
     private String artist;
-    private String audio_url;
-    private String image_url;
+    private String audioUrl;
+    private String imageUrl;
 
     public Song() {
 
     }
 
-    public Song(String title, String artist, String audio_url, String image_url) {
+    public Song(String title, String artist, String audioUrl, String imageUrl) {
         this.title = title;
         this.artist = artist;
-        this.audio_url = audio_url;
-        this.image_url = image_url;
+        this.audioUrl = audioUrl;
+        this.imageUrl = imageUrl;
     }
 
     public String getTitle() {
@@ -33,19 +33,19 @@ public class Song {
         this.artist = artist;
     }
 
-    public String getAudio_url() {
-        return audio_url;
+    public String getAudioUrl() {
+        return audioUrl;
     }
 
-    public void setAudio_url(String audio_url) {
-        this.audio_url = audio_url;
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
     }
 
-    public String getImage_url() {
-        return image_url;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

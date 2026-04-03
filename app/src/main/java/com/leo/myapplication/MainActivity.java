@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                                 songList.add(song);
                             }
                             if (!songList.isEmpty()) {
-                                String imageUrl = songList.get(0).getImage_url();
+                                String imageUrl = songList.get(0).getImageUrl();
                                 if (imageUrl != null && !imageUrl.isEmpty()) {
                                     // 4. Chargement de l'image avec Picasso
                                     Picasso.get()
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                                 Log.w(TAG, "Error getting documents.", task.getException());
                             }
                         }
-
                     }
                 });
     }
