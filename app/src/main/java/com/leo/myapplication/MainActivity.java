@@ -66,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         songAdapter.setOnSongClickListener(song -> {
+            List<Song> toutesLesMusiques = songAdapter.getSongList();
+
+            int indexActuel = toutesLesMusiques.indexOf(song);
+            PlaybackManager.getInstance().initQueue(toutesLesMusiques, indexActuel);
+
             Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
             intent.putExtra("SONG_DATA", song);
             startActivity(intent);

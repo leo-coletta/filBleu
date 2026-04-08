@@ -41,6 +41,8 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
         ImageButton nextButton = findViewById(R.id.next_button);
         ImageButton previousButton = findViewById(R.id.back_button);
+        PlaybackManager manager = PlaybackManager.getInstance();
+
         songTextView = findViewById(R.id.music_name);
         artistTextView = findViewById(R.id.artist_name);
         musicImageView = findViewById(R.id.music_image);
@@ -65,18 +67,21 @@ public class MusicDisplayActivity extends AppCompatActivity {
             finish();
         });
 
-        nextButton.setOnClickListener(click -> {
-            animateMusicChange(R.drawable.music_image_placeholder, true);
+        manager.setListener((newSong, isNext) -> {
+            runOnUiThread(() -> {
+                animateMusicChange(newSong, isNext);
+            });
         });
 
-        previousButton.setOnClickListener(click -> {
-            animateMusicChange(R.drawable.music_image_placeholder, false);
-        });
+        nextButton.setOnClickListener(v -> manager.skipNext());
+        previousButton.setOnClickListener(v -> manager.skipPrevious());
 
         Intent intent = getIntent();
 
         if (intent != null && intent.hasExtra("SONG_DATA")) {
             currentSong = intent.getParcelableExtra("SONG_DATA");
+            updateUI(currentSong);
+            playSong(currentSong);
 
             CurrentSongManager.getInstance().setCurrentSong(currentSong);
 
@@ -99,13 +104,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
     }
 
-    private void animateMusicChange(int newImageResource, boolean isNext) {
-        float exitDestination = isNext ? -1000f : 1000f;
+    private void animateMusicChange(Song song, boolean isNext) {
+        float exitTarget = isNext ? -1000f : 1000f;
         float entryStart = isNext ? 1000f : -1000f;
 
         ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
         slideOut.setTarget(musicImageView);
-        slideOut.setFloatValues(0f, exitDestination);
+        slideOut.setFloatValues(0f, exitTarget);
 
         ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.fade);
         fadeOut.setTarget(musicImageView);
@@ -117,8 +122,8 @@ public class MusicDisplayActivity extends AppCompatActivity {
         animOut.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                musicImageView.setImageResource(newImageResource);
-
+                updateUI(song);
+                playSong(song);
                 musicImageView.setTranslationX(entryStart);
 
                 ObjectAnimator slideIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
@@ -136,6 +141,33 @@ public class MusicDisplayActivity extends AppCompatActivity {
         });
 
         animOut.start();
+    }
+
+    private void updateUI(Song song) {
+        if (song == null) return;
+
+        songTextView.setText(song.getTitle());
+        artistTextView.setText(song.getArtist());
+
+        if (song.getImageUrl() != null && !song.getImageUrl().isEmpty()) {
+            Picasso.get().load(song.getImageUrl()).into(musicImageView);
+        } else {
+            musicImageView.setImageResource(R.drawable.music_image_placeholder);
+        }
+    }
+
+    private void playSong(Song song) {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        if (song.getAudioUrl() != null && !song.getAudioUrl().isEmpty()) {
+            initMediaPlayer(song.getAudioUrl());
+        }
     }
 
     private void initMediaPlayer(String url) {
