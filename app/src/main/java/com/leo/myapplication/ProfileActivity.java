@@ -16,17 +16,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Activité dédiée à la gestion du profil utilisateur.
+ * <p>
+ * Permet à l'utilisateur de consulter et mettre à jour son pseudonyme, son adresse email
+ * et son mot de passe. Gère également la déconnexion de l'application via Firebase Auth.
+ * </p>
+ */
 public class ProfileActivity extends AppCompatActivity {
 
-    private EditText usernameField;
-    private ImageButton editUsername;
-    private EditText emailField;
-    private ImageButton editEmail;
-    private ImageButton editPassword;
-
+    private EditText usernameField, emailField, oldPasswordField, newPasswordField;
+    private ImageButton editUsername, editEmail, editPassword;
     private LinearLayout passwordContainer;
-    private EditText oldPasswordField;
-    private EditText newPasswordField;
     private Button savePasswordButton;
 
     private FirebaseAuth auth;
@@ -43,7 +44,6 @@ public class ProfileActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         currentUser = auth.getCurrentUser();
         miniPlayerController = new MiniPlayerController(this);
-
 
         if (currentUser == null) {
             goToLogin();
@@ -68,20 +68,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         loadUserData();
 
-        homeButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        });
+        homeButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
+        searchButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), ResearchActivity.class)));
+        libraryButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), LibraryActivity.class)));
 
-        searchButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), ResearchActivity.class);
-            startActivity(intent);
-        });
-
-        libraryButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), LibraryActivity.class);
-            startActivity(intent);
-        });
         logoutButton.setOnClickListener(v -> {
             auth.signOut();
             goToLogin();
@@ -107,9 +97,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        editPassword.setOnClickListener(v -> {
-            passwordContainer.setVisibility(passwordContainer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-        });
+        editPassword.setOnClickListener(v -> passwordContainer.setVisibility(passwordContainer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE));
 
         savePasswordButton.setOnClickListener(v -> {
             String oldPass = oldPasswordField.getText().toString().trim();
@@ -128,6 +116,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    /** Redirige vers l'écran de connexion et ferme l'activité actuelle. */
     private void goToLogin() {
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -135,6 +124,7 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
     }
 
+    /** Récupère et affiche les données de l'utilisateur (pseudo, email) depuis Firestore. */
     private void loadUserData() {
         db.collection("users").document(currentUser.getUid()).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -143,22 +133,27 @@ public class ProfileActivity extends AppCompatActivity {
                         usernameField.setText(username != null ? username : "");
                     }
                 });
-
         emailField.setText(currentUser.getEmail());
     }
 
+    /**
+     * Met à jour le nom d'utilisateur dans Firestore.
+     * @param newUsername Le nouveau pseudonyme saisi.
+     */
     private void updateUsername(String newUsername) {
         if (newUsername.isEmpty()) return;
-
         db.collection("users").document(currentUser.getUid())
                 .update("username", newUsername)
                 .addOnSuccessListener(aVoid -> Toast.makeText(this, "Nom d'utilisateur mis à jour", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Envoie une demande de vérification pour mettre à jour l'email via Firebase Auth.
+     * @param newEmail La nouvelle adresse email.
+     */
     private void updateEmail(String newEmail) {
         if (newEmail.isEmpty() || newEmail.equals(currentUser.getEmail())) return;
-
         currentUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(this, "Lien de validation envoyé à " + newEmail, Toast.LENGTH_LONG).show();
@@ -170,9 +165,14 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Ré-authentifie l'utilisateur puis met à jour son mot de passe.
+     * @param oldPass L'ancien mot de passe (requis pour la ré-authentification).
+     * @param newPass Le nouveau mot de passe souhaité.
+     */
     private void updatePassword(String oldPass, String newPass) {
         AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPass);
-
         currentUser.reauthenticate(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 currentUser.updatePassword(newPass).addOnCompleteListener(updateTask -> {

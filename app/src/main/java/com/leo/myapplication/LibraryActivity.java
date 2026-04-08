@@ -21,12 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activité affichant la bibliothèque personnelle de l'utilisateur.
+ * <p>
+ * Récupère les playlists de l'utilisateur depuis Firestore et lui permet
+ * d'en créer de nouvelles via une boîte de dialogue. Maintient également l'état
+ * du mini-lecteur multimédia ({@link MiniPlayerController}).
+ * </p>
+ */
 public class LibraryActivity extends AppCompatActivity {
 
     private RecyclerView playlistsRecyclerView;
     private PlaylistAdapter playlistAdapter;
     private MiniPlayerController miniPlayerController;
-
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
@@ -37,8 +44,6 @@ public class LibraryActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-
-        // Restauration du MiniPlayerController
         miniPlayerController = new MiniPlayerController(this);
 
         ImageButton searchButton = findViewById(R.id.search_button);
@@ -74,6 +79,10 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Affiche une boîte de dialogue (Dialog) permettant à l'utilisateur
+     * de saisir le nom d'une nouvelle playlist, puis l'enregistre dans Firestore.
+     */
     private void showCreatePlaylistDialog() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_create_playlist);
@@ -103,6 +112,9 @@ public class LibraryActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Interroge Firestore pour récupérer toutes les playlists associées à l'utilisateur connecté.
+     */
     private void fetchPlaylistsFromFirestore() {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
