@@ -1,10 +1,11 @@
 package com.leo.myapplication;
 
+import java.util.List;
+
 public interface IPlaybackQueue {
+    void setQueue(List<Song> songs, int startIndex);
     Song getNext();
     Song getPrevious();
     Song getCurrent();
-    boolean hasNext();
-    boolean hasPrevious();
-    void setQueue(java.util.List<Song> songs, int startIndex);
+    int getCurrentIndex();
 }

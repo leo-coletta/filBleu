@@ -16,7 +16,6 @@ public class ListPlaybackQueue implements IPlaybackQueue {
     @Override
     public Song getNext() {
         if (songList.isEmpty()) return null;
-        // Comportement "Loop" : si fin de liste, revient au début
         currentIndex = (currentIndex + 1) % songList.size();
         return getCurrent();
     }
@@ -24,7 +23,6 @@ public class ListPlaybackQueue implements IPlaybackQueue {
     @Override
     public Song getPrevious() {
         if (songList.isEmpty()) return null;
-        // Si début de liste, va à la fin
         currentIndex = (currentIndex - 1 + songList.size()) % songList.size();
         return getCurrent();
     }
@@ -35,7 +33,7 @@ public class ListPlaybackQueue implements IPlaybackQueue {
     }
 
     @Override
-    public boolean hasNext() { return !songList.isEmpty(); }
-    @Override
-    public boolean hasPrevious() { return !songList.isEmpty(); }
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
 }

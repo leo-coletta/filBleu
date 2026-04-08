@@ -1,20 +1,23 @@
 package com.leo.myapplication;
 
+import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.util.Log;
+import java.io.IOException;
 import java.util.List;
 
 public class PlaybackManager {
     private static PlaybackManager instance;
     private MediaPlayer mediaPlayer;
     private IPlaybackQueue queue;
-    private PlaybackListener listener;
+    private OnSongChangedListener listener;
 
-    public interface PlaybackListener {
+    public interface OnSongChangedListener {
         void onSongChanged(Song newSong, boolean isNext);
     }
 
     private PlaybackManager() {
-        queue = new ListPlaybackQueue(); // Source actuelle (liste DB)
+        this.queue = new ListPlaybackQueue();
     }
 
     public static synchronized PlaybackManager getInstance() {
@@ -22,7 +25,9 @@ public class PlaybackManager {
         return instance;
     }
 
-    public void setListener(PlaybackListener listener) { this.listener = listener; }
+    public void setOnSongChangedListener(OnSongChangedListener listener) {
+        this.listener = listener;
+    }
 
     public void initQueue(List<Song> songs, int startIndex) {
         queue.setQueue(songs, startIndex);
@@ -30,19 +35,41 @@ public class PlaybackManager {
 
     public void skipNext() {
         Song next = queue.getNext();
-        if (next != null && listener != null) {
-            listener.onSongChanged(next, true);
-        }
+        if (next != null && listener != null) listener.onSongChanged(next, true);
     }
 
     public void skipPrevious() {
-        // Logique Spotify : si on a dépassé 3s, on redémarre la chanson
-        // Sinon, on passe à la précédente
         Song prev = queue.getPrevious();
-        if (prev != null && listener != null) {
-            listener.onSongChanged(prev, false);
-        }
+        if (prev != null && listener != null) listener.onSongChanged(prev, false);
     }
 
     public Song getCurrentSong() { return queue.getCurrent(); }
+
+    public void play(String url, MediaPlayer.OnPreparedListener preparedListener) {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA).build());
+        try {
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(preparedListener);
+        } catch (IOException e) {
+            Log.e("PlaybackManager", "Error", e);
+        }
+    }
+
+    public void togglePlayPause() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) mediaPlayer.pause();
+            else mediaPlayer.start();
+        }
+    }
+
+    public boolean isPlaying() {
+        return mediaPlayer != null && mediaPlayer.isPlaying();
+    }
 }
