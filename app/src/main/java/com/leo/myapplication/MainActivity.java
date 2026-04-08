@@ -76,7 +76,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Récupération des musiques depuis Firestore pour les recommandations
+        songAdapter.setOnSongClickListener(song -> {
+            List<Song> toutesLesMusiques = songAdapter.getSongList();
+            int indexActuel = toutesLesMusiques.indexOf(song);
+
+            // Initialisation de la file d'attente globale
+            PlaybackManager.getInstance().initQueue(toutesLesMusiques, indexActuel);
+
+            Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
+            intent.putExtra("SONG_DATA", song);
+            startActivity(intent);
+        }); // Accolade fermante corrigée ici
+
         db.collection("songs")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -87,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                             song.setId(document.getId());
                             songList.add(song);
                         }
-
+                        
                         if (!songList.isEmpty()) {
                             displayRecommended(songList);
                         }
