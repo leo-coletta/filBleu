@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
-        Button musicButton = findViewById(R.id.music_display_button);
 
         miniPlayerController = new MiniPlayerController(this);
 
@@ -62,11 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         profileButton.setOnClickListener(click -> {
             Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-            startActivity(intent);
-        });
-
-        musicButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
             startActivity(intent);
         });
 

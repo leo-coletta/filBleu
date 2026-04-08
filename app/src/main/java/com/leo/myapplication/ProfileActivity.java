@@ -32,6 +32,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
+    private MiniPlayerController miniPlayerController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,8 @@ public class ProfileActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = auth.getCurrentUser();
+        miniPlayerController = new MiniPlayerController(this);
+
 
         if (currentUser == null) {
             goToLogin();
@@ -61,7 +64,6 @@ public class ProfileActivity extends AppCompatActivity {
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton homeButton = findViewById(R.id.home_button);
-        Button musicButton = findViewById(R.id.music_display_button);
         Button logoutButton = findViewById(R.id.logout_button);
 
         loadUserData();
@@ -80,12 +82,6 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), LibraryActivity.class);
             startActivity(intent);
         });
-
-        musicButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), MusicDisplayActivity.class);
-            startActivity(intent);
-        });
-
         logoutButton.setOnClickListener(v -> {
             auth.signOut();
             goToLogin();
@@ -193,5 +189,13 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (miniPlayerController != null) {
+            miniPlayerController.updateUI();
+        }
     }
 }

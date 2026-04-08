@@ -21,16 +21,17 @@ public class ResearchActivity extends AppCompatActivity {
 
     private SongAdapter songAdapter;
     private List<Song> allSongs = new ArrayList<>();
+    private MiniPlayerController miniPlayerController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_research);
+        miniPlayerController = new MiniPlayerController(this);
 
         ImageButton homeButton = findViewById(R.id.home_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
-        Button musicButton = findViewById(R.id.music_display_button);
 
         RecyclerView recyclerView = findViewById(R.id.results_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -88,10 +89,6 @@ public class ResearchActivity extends AppCompatActivity {
         homeButton.setOnClickListener( click -> {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
         });
-
-        musicButton.setOnClickListener( click -> {
-            startActivity(new Intent(getApplicationContext(), MusicDisplayActivity.class));
-        });
     }
 
     private void filterSongs(String text) {
@@ -106,5 +103,13 @@ public class ResearchActivity extends AppCompatActivity {
         }
 
         songAdapter.setSongList(filteredList);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (miniPlayerController != null) {
+            miniPlayerController.updateUI();
+        }
     }
 }

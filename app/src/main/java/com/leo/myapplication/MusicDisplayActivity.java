@@ -75,10 +75,8 @@ public class MusicDisplayActivity extends AppCompatActivity {
         nextButton.setOnClickListener(v -> manager.skipNext());
         previousButton.setOnClickListener(v -> manager.skipPrevious());
 
-        playPauseButton.setOnClickListener(v -> {
-            manager.togglePlayPause();
-            updatePlayPauseIcon();
-        });
+        // On utilise la méthode qui parle au CurrentSongManager
+        setupPlayPauseLogic();
 
         // Navigation standard
         homeButton.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
@@ -87,41 +85,41 @@ public class MusicDisplayActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         Intent intent = getIntent();
+        Song selectedSong = null;
+
+        // On vérifie de façon sécurisée si une musique a été envoyée
         if (intent != null && intent.hasExtra("SONG_DATA")) {
-            Song incomingSong = intent.getParcelableExtra("SONG_DATA");
-            if (incomingSong != null) {
-                CurrentSongManager.getInstance().setCurrentSong(incomingSong);
-                updateUI(incomingSong);
-                startPlayback(incomingSong);
-            }
-        } else {
-            // Si on ouvre la vue sans intent, on affiche ce qui joue déjà
-            Song current = manager.getCurrentSong();
-            if (current != null) {
-                updateUI(current);
-                updatePlayPauseIcon();
-            }
+            selectedSong = intent.getParcelableExtra("SONG_DATA");
         }
 
-        Song selectedSong = intent.getParcelableExtra("SONG_DATA");
         Song currentlyPlaying = CurrentSongManager.getInstance().getCurrentSong();
-        if (currentlyPlaying == null || !currentlyPlaying.getId().equals(selectedSong.getId())) {
-            currentSong = selectedSong;
-            CurrentSongManager.getInstance().playSong(currentSong, () -> {
-                // Callback exécuté quand la musique est PRÊTE
-                playPauseButton.setImageResource(R.drawable.pause);
 
-                // Initialisation de la durée max de la SeekBar
+        // CAS 1 : On a cliqué sur une NOUVELLE musique depuis une liste
+        if (selectedSong != null && (currentlyPlaying == null || !currentlyPlaying.getId().equals(selectedSong.getId()))) {
+            currentSong = selectedSong;
+
+            // Mise à jour de l'affichage
+            updateUI(currentSong);
+
+            // On lance la musique et on configure la SeekBar
+            CurrentSongManager.getInstance().playSong(currentSong, () -> {
+                playPauseButton.setImageResource(R.drawable.pause);
                 int totalDuration = CurrentSongManager.getInstance().getDuration();
                 seekBar.setMax(totalDuration);
                 totalTimeText.setText(createTimeLabel(totalDuration));
-
-                // Démarrage du rafraîchissement
                 updateSeekBar();
             });
-        } else {
-            // Musique DÉJÀ en cours : on restaure l'interface immédiatement
+
+            // (Si tu utilises PlaybackManager en parallèle pour les files d'attente,
+            // assure-toi qu'il ne lance pas un 2ème MediaPlayer ici)
+        }
+        // CAS 2 : On ouvre via le mini-player (selectedSong == null) OU on clique sur la musique DÉJÀ en cours
+        else if (currentlyPlaying != null) {
             currentSong = currentlyPlaying;
+
+            // On restaure simplement l'affichage sans relancer la musique
+            updateUI(currentSong);
+
             int totalDuration = CurrentSongManager.getInstance().getDuration();
             seekBar.setMax(totalDuration);
             totalTimeText.setText(createTimeLabel(totalDuration));
@@ -134,11 +132,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
             }
         }
 
-        songTextView.setText(currentSong.getTitle());
-        artistTextView.setText(currentSong.getArtist());
-        if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
-            Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
-        }
+        // --- FIN DE LA CORRECTION ---
     }
 
     @Override
@@ -203,9 +197,18 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
     private void startPlayback(Song song) {
         if (song != null && song.getAudioUrl() != null) {
-            manager.play(song.getAudioUrl(), mp -> {
-                mp.start();
-                updatePlayPauseIcon();
+            // 1. Mise à jour de la musique en cours dans le Singleton global
+            CurrentSongManager.getInstance().setCurrentSong(song);
+
+            // 2. Lancement de la musique via CurrentSongManager pour que la SeekBar suive
+            CurrentSongManager.getInstance().playSong(song, () -> {
+                playPauseButton.setImageResource(R.drawable.pause);
+
+                // Réinitialisation de la SeekBar pour la nouvelle musique
+                int totalDuration = CurrentSongManager.getInstance().getDuration();
+                seekBar.setMax(totalDuration);
+                totalTimeText.setText(createTimeLabel(totalDuration));
+                updateSeekBar();
             });
         }
     }

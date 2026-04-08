@@ -22,6 +22,8 @@ public class LibraryActivity extends AppCompatActivity {
     private RecyclerView playlistsRecyclerView;
     private SongAdapter songAdapter;
     private PlaylistAdapter playlistAdapter;
+    private MiniPlayerController miniPlayerController;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,7 @@ public class LibraryActivity extends AppCompatActivity {
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
         ImageButton homeButton = findViewById(R.id.home_button);
-        Button musicButton = findViewById(R.id.music_display_button);
+        miniPlayerController = new MiniPlayerController(this);
 
         songsRecyclerView = findViewById(R.id.songs_recycler_view);
         songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -56,17 +58,6 @@ public class LibraryActivity extends AppCompatActivity {
         profileButton.setOnClickListener(click -> {
             Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
             startActivity(intent);
-        });
-
-        musicButton.setOnClickListener( click -> {
-            Song playingSong = CurrentSongManager.getInstance().getCurrentSong();
-
-            if (playingSong != null) {
-                Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Aucune musique en cours de lecture", Toast.LENGTH_SHORT).show();
-            }
         });
 
         songAdapter.setOnSongClickListener(song -> {
@@ -123,5 +114,13 @@ public class LibraryActivity extends AppCompatActivity {
                         Log.e("FirestoreError", "Erreur lors de la récupération des playlists", task.getException());
                     }
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (miniPlayerController != null) {
+            miniPlayerController.updateUI();
+        }
     }
 }
