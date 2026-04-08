@@ -163,17 +163,17 @@ public class ProfileActivity extends AppCompatActivity {
     private void updateEmail(String newEmail) {
         if (newEmail.isEmpty() || newEmail.equals(currentUser.getEmail())) return;
 
-        currentUser.updateEmail(newEmail).addOnCompleteListener(task -> {
+        currentUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                db.collection("users").document(currentUser.getUid()).update("email", newEmail);
-                Toast.makeText(this, "Email mis à jour", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Lien de validation envoyé à " + newEmail, Toast.LENGTH_LONG).show();
+                emailField.setText(currentUser.getEmail());
             } else {
-                Toast.makeText(this, "Échec. Reconnectez-vous puis réessayez.", Toast.LENGTH_LONG).show();
+                String errorMsg = task.getException() != null ? task.getException().getMessage() : "Erreur inconnue";
+                Toast.makeText(this, "Échec : " + errorMsg, Toast.LENGTH_LONG).show();
                 emailField.setText(currentUser.getEmail());
             }
         });
     }
-
     private void updatePassword(String oldPass, String newPass) {
         AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPass);
 
