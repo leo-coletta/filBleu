@@ -42,6 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton homeButton = findViewById(R.id.home_button);
         Button musicButton = findViewById(R.id.music_display_button);
+        Button logoutButton = findViewById(R.id.logout_button);
 
         homeButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), MainActivity.class);
@@ -61,6 +62,14 @@ public class ProfileActivity extends AppCompatActivity {
         musicButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
             startActivity(intent);
+        });
+
+        logoutButton.setOnClickListener(v -> {
+            // TODO: Ajouter la méthode de déconnexion Firebase ici plus tard
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
 
         editUsername.setOnClickListener(v -> {
