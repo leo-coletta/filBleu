@@ -3,4 +3,5 @@
     <string name="music_name">Music name, placeholder</string>
     <string name="artist_name">Artist name, placeholder</string>
     <string name="music_time_placeholder">0:00</string>
+    <string name="ma_super_playlist">Ma super playlist</string>
 </resources>

@@ -1,51 +1,68 @@
 package com.leo.myapplication;
 
-public class Song {
+import android.os.Parcel;
+import android.os.Parcelable;
+import androidx.annotation.NonNull;
+
+public class Song implements Parcelable {
+    private String id;
     private String title;
     private String artist;
+    private String coverUrl;
     private String audioUrl;
     private String imageUrl;
 
-    public Song() {
+    public Song() {}
 
+    protected Song(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        artist = in.readString();
+        coverUrl = in.readString();
+        audioUrl = in.readString();
+        imageUrl = in.readString();
     }
 
-    public Song(String title, String artist, String audioUrl, String imageUrl) {
-        this.title = title;
-        this.artist = artist;
-        this.audioUrl = audioUrl;
-        this.imageUrl = imageUrl;
-    }
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
 
-    public String getTitle() {
-        return title;
-    }
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public String getArtist() {
-        return artist;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
+    public String getArtist() { return artist; }
+    public void setArtist(String artist) { this.artist = artist; }
 
-    public String getAudioUrl() {
-        return audioUrl;
-    }
+    public String getCoverUrl() { return coverUrl; }
+    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
 
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
-    }
+    public String getAudioUrl() { return audioUrl; }
+    public void setAudioUrl(String audioUrl) { this.audioUrl = audioUrl; }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    @Override
+    public int describeContents() { return 0; }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(title);
+        parcel.writeString(artist);
+        parcel.writeString(coverUrl);
+        parcel.writeString(audioUrl);
+        parcel.writeString(imageUrl);
     }
 }

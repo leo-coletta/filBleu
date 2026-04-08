@@ -7,15 +7,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -24,6 +21,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "Fil Bleu + " + getClass().getSimpleName();
+    private ImageView recommended1, recommended2;
+    private RecyclerView recentTracksRecyclerView;
+    private SongAdapter songAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,14 @@ public class MainActivity extends AppCompatActivity {
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
         Button musicButton = findViewById(R.id.music_display_button);
-        ImageView recommended1 = findViewById(R.id.recomended1);
+        
+        recommended1 = findViewById(R.id.recomended1);
+        recommended2 = findViewById(R.id.recommended2);
+        
+        recentTracksRecyclerView = findViewById(R.id.recent_tracks_recycler_view);
+        recentTracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        songAdapter = new SongAdapter();
+        recentTracksRecyclerView.setAdapter(songAdapter);
 
         searchButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);
@@ -58,43 +65,56 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        songAdapter.setOnSongClickListener(song -> {
+            Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
+            intent.putExtra("SONG_DATA", song);
+            startActivity(intent);
+        });
+
         db.collection("songs")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            List<Song> songList = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                Song song = document.toObject(Song.class);
-                                songList.add(song);
-                            }
-                            if (!songList.isEmpty()) {
-                                String imageUrl = songList.get(0).getImageUrl();
-                                if (imageUrl != null && !imageUrl.isEmpty()) {
-                                    // 4. Chargement de l'image avec Picasso
-                                    Picasso.get()
-                                            .load(imageUrl)
-                                            .into(recommended1, new Callback() {
-                                                @Override
-                                                public void onSuccess() {
-                                                    Log.d("MainActivity", "Image téléchargée et affichée !");
-                                                }
-
-                                                @Override
-                                                public void onError(Exception e) {
-                                                    Log.e("MainActivity", "Erreur Picasso : ", e);
-                                                }
-                                            });
-                                } else {
-                                    Log.e("MainActivity", "L'URL de l'image est vide dans le document Firestore.");
-                                }
-                            } else {
-                                Log.w(TAG, "Error getting documents.", task.getException());
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<Song> songList = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Song song = document.toObject(Song.class);
+                            song.setId(document.getId());
+                            songList.add(song);
                         }
+                        
+                        if (!songList.isEmpty()) {
+                            displayRecommended(songList);
+                            songAdapter.setSongList(songList);
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
                     }
                 });
+    }
+
+    private void displayRecommended(List<Song> songs) {
+        if (!songs.isEmpty()) {
+            Song s1 = songs.get(0);
+            if (s1.getImageUrl() != null && !s1.getImageUrl().isEmpty()) {
+                Picasso.get().load(s1.getImageUrl()).into(recommended1);
+            }
+            recommended1.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
+                intent.putExtra("SONG_DATA", s1);
+                startActivity(intent);
+            });
+        }
+        
+        if (songs.size() >= 2) {
+            Song s2 = songs.get(1);
+            if (s2.getImageUrl() != null && !s2.getImageUrl().isEmpty()) {
+                Picasso.get().load(s2.getImageUrl()).into(recommended2);
+            }
+            recommended2.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
+                intent.putExtra("SONG_DATA", s2);
+                startActivity(intent);
+            });
+        }
     }
 }
