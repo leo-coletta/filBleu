@@ -7,11 +7,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
@@ -26,17 +28,41 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recentTracksRecyclerView;
     private MiniPlayerController miniPlayerController;
     private SongAdapter recentTracksAdapter;
+    private TextView welcomeText;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
+
+        auth = FirebaseAuth.getInstance();
+        welcomeText = findViewById(R.id.welcome_text);
+
+        if (auth.getCurrentUser() != null) {
+            String uid = auth.getCurrentUser().getUid();
+
+            db.collection("users").document(uid).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String userName = documentSnapshot.getString("username");
+
+                            if (userName != null && !userName.isEmpty()) {
+                                welcomeText.setText("Welcome back, " + userName + "!");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Erreur lors de la récupération des données utilisateur", e);
+                    });
+        }
 
         miniPlayerController = new MiniPlayerController(this);
 

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,33 +38,22 @@ public class LibraryActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Restauration du MiniPlayerController
+        miniPlayerController = new MiniPlayerController(this);
+
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
         ImageButton homeButton = findViewById(R.id.home_button);
-        miniPlayerController = new MiniPlayerController(this);
-
         ImageButton btnCreatePlaylist = findViewById(R.id.btn_create_playlist);
 
         playlistsRecyclerView = findViewById(R.id.playlists_recycler_view);
-        // Utilise une grille avec 2 colonnes
         playlistsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         playlistAdapter = new PlaylistAdapter();
         playlistsRecyclerView.setAdapter(playlistAdapter);
 
-        homeButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        });
-
-        searchButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), ResearchActivity.class);
-            startActivity(intent);
-        });
-
-        profileButton.setOnClickListener(click -> {
-            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-            startActivity(intent);
-        });
+        homeButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
+        searchButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), ResearchActivity.class)));
+        profileButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), ProfileActivity.class)));
 
         btnCreatePlaylist.setOnClickListener(v -> showCreatePlaylistDialog());
 
@@ -76,6 +64,14 @@ public class LibraryActivity extends AppCompatActivity {
         });
 
         fetchPlaylistsFromFirestore();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (miniPlayerController != null) {
+            miniPlayerController.updateUI();
+        }
     }
 
     private void showCreatePlaylistDialog() {
@@ -125,13 +121,5 @@ public class LibraryActivity extends AppCompatActivity {
                         Log.e("FirestoreError", "Erreur récupération playlists", task.getException());
                     }
                 });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (miniPlayerController != null) {
-            miniPlayerController.updateUI();
-        }
     }
 }

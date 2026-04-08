@@ -65,9 +65,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         holder.textViewArtist.setText(currentSong.getArtist());
 
         if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
-            Picasso.get().load(currentSong.getImageUrl()).into(holder.songImageView);
+            Picasso.get().load(currentSong.getImageUrl()).into(holder.musicImage);
         } else {
-            holder.songImageView.setImageResource(R.drawable.music_image_placeholder);
+            holder.musicImage.setImageResource(R.drawable.music_image_placeholder);
         }
 
         if (showFullHearts) {
