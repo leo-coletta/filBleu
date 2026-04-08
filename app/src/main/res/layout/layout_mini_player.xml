@@ -3,93 +3,96 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/music_player"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    app:layout_constraintBottom_toTopOf="@id/navbar"
-    app:layout_constraintEnd_toEndOf="parent"
+    android:layout_height="68dp"
+    android:background="@color/night_blue"
+    app:layout_constraintBottom_toTopOf="@+id/navbar"
     app:layout_constraintStart_toStartOf="parent"
-    android:gravity="center"
-    android:background="@color/night_blue">
+    app:layout_constraintEnd_toEndOf="parent">
 
     <Button
         android:id="@+id/music_display_button"
-        android:layout_width="300dp"
-        android:layout_height="68dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:background="@color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-    </Button>
-
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ImageView
         android:id="@+id/music_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_margin="10dp"
+        android:layout_marginStart="10dp"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:srcCompat="@drawable/music_image_placeholder" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/music_infos"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginStart="10dp"
-        android:padding="5dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintStart_toEndOf="@id/music_image"
+        app:layout_constraintEnd_toStartOf="@id/controls_container"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        >
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/music_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/music_name"
             android:textColor="@color/white"
-            android:textSize="20sp"/>
+            android:textSize="16sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/music_name" />
 
         <TextView
             android:id="@+id/artist_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/artist_name"
-            android:textColor="@color/white" />
-
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/artist_name" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="10dp"
-        android:background="@drawable/back"
+    <LinearLayout
+        android:id="@+id/controls_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/music_infos"
-        />
+        android:elevation="2dp">
 
-    <ImageButton
-        android:id="@+id/play_pause_button"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="10dp"
-        android:background="@drawable/pause"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/back_button"/>
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/back"
+            android:layout_marginEnd="20dp" />
 
-    <ImageButton
-        android:id="@+id/next_button"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="10dp"
-        android:background="@drawable/next"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/play_pause_button"/>
+        <ImageButton
+            android:id="@+id/play_pause_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/pause"
+            android:layout_marginEnd="20dp" />
+
+        <ImageButton
+            android:id="@+id/next_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/next" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

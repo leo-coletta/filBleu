@@ -64,10 +64,21 @@ public class MiniPlayerController {
             }
         });
 
+        // Activation des boutons suivant et précédent
         nextButton.setOnClickListener(v -> {
+            PlaybackManager.getInstance().skipNext();
+            Song next = PlaybackManager.getInstance().getCurrentSong();
+            if (next != null) {
+                CurrentSongManager.getInstance().playSong(next, () -> updateUI());
+            }
         });
 
         backButton.setOnClickListener(v -> {
+            PlaybackManager.getInstance().skipPrevious();
+            Song prev = PlaybackManager.getInstance().getCurrentSong();
+            if (prev != null) {
+                CurrentSongManager.getInstance().playSong(prev, () -> updateUI());
+            }
         });
     }
 
@@ -85,14 +96,12 @@ public class MiniPlayerController {
                 Picasso.get().load(current.getImageUrl()).into(musicImage);
             }
 
-            // Synchronisation de l'icône de lecture
             if (CurrentSongManager.getInstance().isPlaying()) {
                 playPauseButton.setBackgroundResource(R.drawable.pause);
             } else {
                 playPauseButton.setBackgroundResource(R.drawable.play);
             }
         } else {
-            // Cache la barre s'il n'y a aucune musique en cours
             playerLayout.setVisibility(View.GONE);
         }
     }

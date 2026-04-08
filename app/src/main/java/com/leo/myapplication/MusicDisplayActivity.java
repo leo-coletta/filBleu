@@ -255,8 +255,6 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
-    // --- LOGIQUE DES PLAYLISTS ---
-
     private void checkIfLiked() {
         if (auth.getCurrentUser() == null || currentSong == null) return;
         likeButton.setBackgroundResource(R.drawable.heart); // Reset par défaut

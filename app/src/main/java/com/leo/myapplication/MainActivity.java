@@ -66,10 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         miniPlayerController = new MiniPlayerController(this);
 
-        // Récupération du conteneur du HorizontalScrollView
         recommendedContainer = findViewById(R.id.recommended_container);
 
-        // Configuration unique du RecyclerView pour l'historique
         recentTracksRecyclerView = findViewById(R.id.recent_tracks_recycler_view);
         recentTracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recentTracksAdapter = new SongAdapter();
@@ -94,13 +92,12 @@ public class MainActivity extends AppCompatActivity {
             List<Song> toutesLesMusiques = recentTracksAdapter.getSongList();
             int indexActuel = toutesLesMusiques.indexOf(song);
 
-            // Initialisation de la file d'attente globale
             PlaybackManager.getInstance().initQueue(toutesLesMusiques, indexActuel);
 
             Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
             intent.putExtra("SONG_DATA", song);
             startActivity(intent);
-        }); // Accolade fermante corrigée ici
+        });
 
         db.collection("songs")
                 .get()
@@ -112,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                             song.setId(document.getId());
                             songList.add(song);
                         }
-                        
+
                         if (!songList.isEmpty()) {
                             displayRecommended(songList);
                         }
@@ -123,10 +120,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayRecommended(List<Song> songs) {
-        // On s'assure que le conteneur est vide avant d'ajouter
         recommendedContainer.removeAllViews();
 
-        // Calcul de la taille (150dp) et de la marge (15dp) en pixels pour l'écran actuel
         float density = getResources().getDisplayMetrics().density;
         int sizePx = (int) (150 * density);
         int marginPx = (int) (15 * density);
@@ -134,27 +129,26 @@ public class MainActivity extends AppCompatActivity {
         for (Song song : songs) {
             ImageView imageView = new ImageView(this);
 
-            // Configuration des paramètres de mise en page (taille et marges)
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(sizePx, sizePx);
             layoutParams.setMarginEnd(marginPx);
             imageView.setLayoutParams(layoutParams);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            // Chargement de l'image
             if (song.getImageUrl() != null && !song.getImageUrl().isEmpty()) {
                 Picasso.get().load(song.getImageUrl()).placeholder(R.drawable.music_image_placeholder).into(imageView);
             } else {
                 imageView.setImageResource(R.drawable.music_image_placeholder);
             }
 
-            // Gestion du clic pour lancer la musique
             imageView.setOnClickListener(v -> {
+                // Initialisation de la file d'attente ajoutée ici
+                PlaybackManager.getInstance().initQueue(songs, songs.indexOf(song));
+
                 Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
                 intent.putExtra("SONG_DATA", song);
                 startActivity(intent);
             });
 
-            // Ajout de l'image construite au layout
             recommendedContainer.addView(imageView);
         }
     }
