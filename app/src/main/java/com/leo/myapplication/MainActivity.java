@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,11 +22,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "Fil Bleu + " + getClass().getSimpleName();
-    private ImageView recommended1, recommended2;
+    private LinearLayout recommendedContainer;
     private RecyclerView recentTracksRecyclerView;
-    private SongAdapter songAdapter;
     private MiniPlayerController miniPlayerController;
-
+    private SongAdapter recentTracksAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +38,23 @@ public class MainActivity extends AppCompatActivity {
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
         Button musicButton = findViewById(R.id.music_display_button);
-        
-        recommended1 = findViewById(R.id.recomended1);
-        recommended2 = findViewById(R.id.recommended2);
-        
+
+        miniPlayerController = new MiniPlayerController(this);
+
+        // Récupération du conteneur du HorizontalScrollView
+        recommendedContainer = findViewById(R.id.recommended_container);
+
+        // Configuration unique du RecyclerView pour l'historique
         recentTracksRecyclerView = findViewById(R.id.recent_tracks_recycler_view);
-        recentTracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        songAdapter = new SongAdapter();
-        recentTracksRecyclerView.setAdapter(songAdapter);
+        recentTracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recentTracksAdapter = new SongAdapter();
+        recentTracksRecyclerView.setAdapter(recentTracksAdapter);
+
+        recentTracksAdapter.setOnSongClickListener(song -> {
+            Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
+            intent.putExtra("SONG_DATA", song);
+            startActivity(intent);
+        });
 
         searchButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);
@@ -67,12 +76,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        songAdapter.setOnSongClickListener(song -> {
-            Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
-            intent.putExtra("SONG_DATA", song);
-            startActivity(intent);
-        });
-
+        // Récupération des musiques depuis Firestore pour les recommandations
         db.collection("songs")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -83,50 +87,64 @@ public class MainActivity extends AppCompatActivity {
                             song.setId(document.getId());
                             songList.add(song);
                         }
-                        
+
                         if (!songList.isEmpty()) {
                             displayRecommended(songList);
-                            songAdapter.setSongList(songList);
                         }
                     } else {
                         Log.e(TAG, "Error getting documents: ", task.getException());
                     }
                 });
-
-        miniPlayerController = new MiniPlayerController(this);
     }
 
     private void displayRecommended(List<Song> songs) {
-        if (!songs.isEmpty()) {
-            Song s1 = songs.get(0);
-            if (s1.getImageUrl() != null && !s1.getImageUrl().isEmpty()) {
-                Picasso.get().load(s1.getImageUrl()).into(recommended1);
+        // On s'assure que le conteneur est vide avant d'ajouter
+        recommendedContainer.removeAllViews();
+
+        // Calcul de la taille (150dp) et de la marge (15dp) en pixels pour l'écran actuel
+        float density = getResources().getDisplayMetrics().density;
+        int sizePx = (int) (150 * density);
+        int marginPx = (int) (15 * density);
+
+        for (Song song : songs) {
+            ImageView imageView = new ImageView(this);
+
+            // Configuration des paramètres de mise en page (taille et marges)
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(sizePx, sizePx);
+            layoutParams.setMarginEnd(marginPx);
+            imageView.setLayoutParams(layoutParams);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            // Chargement de l'image
+            if (song.getImageUrl() != null && !song.getImageUrl().isEmpty()) {
+                Picasso.get().load(song.getImageUrl()).placeholder(R.drawable.music_image_placeholder).into(imageView);
+            } else {
+                imageView.setImageResource(R.drawable.music_image_placeholder);
             }
-            recommended1.setOnClickListener(v -> {
+
+            // Gestion du clic pour lancer la musique
+            imageView.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
-                intent.putExtra("SONG_DATA", s1);
+                intent.putExtra("SONG_DATA", song);
                 startActivity(intent);
             });
-        }
-        
-        if (songs.size() >= 2) {
-            Song s2 = songs.get(1);
-            if (s2.getImageUrl() != null && !s2.getImageUrl().isEmpty()) {
-                Picasso.get().load(s2.getImageUrl()).into(recommended2);
-            }
-            recommended2.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
-                intent.putExtra("SONG_DATA", s2);
-                startActivity(intent);
-            });
+
+            // Ajout de l'image construite au layout
+            recommendedContainer.addView(imageView);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         if (miniPlayerController != null) {
             miniPlayerController.updateUI();
+        }
+
+        List<Song> recentSongs = CurrentSongManager.getInstance().getRecentSongs();
+        if (recentTracksAdapter != null) {
+            recentTracksAdapter.setSongList(recentSongs);
         }
     }
 }

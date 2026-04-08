@@ -62,33 +62,48 @@
                 android:text="Welcome back, user_name!"
                 android:layout_marginStart="10dp"
                 />
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/recommended_tracks_container"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_margin="50dp"
-                >
-                <ImageView
-                    android:id="@+id/recomended1"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:src="@drawable/brionne"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    />
-                <ImageView
-                    android:id="@+id/recommended2"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:src="@drawable/brionne"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    />
+                android:layout_margin="10dp"
+                android:scrollbars="none">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:id="@+id/recommended_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginEnd="15dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/brionne" />
+
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginEnd="15dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/breloom" />
+
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginEnd="15dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bronzong" />
+
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginEnd="15dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bronzor" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <TextView
                 android:layout_width="wrap_content"
