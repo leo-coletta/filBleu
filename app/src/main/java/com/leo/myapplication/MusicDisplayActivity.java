@@ -138,7 +138,6 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
         likedRef.get().addOnSuccessListener(doc -> {
             if (!doc.exists()) {
-                // Création auto de la playlist par défaut
                 Map<String, Object> data = new HashMap<>();
                 data.put("name", "Titres likés");
                 data.put("songIds", Arrays.asList(songId));
@@ -177,7 +176,6 @@ public class MusicDisplayActivity extends AppCompatActivity {
                                 Map<String, Object> updates = new HashMap<>();
                                 updates.put("songIds", FieldValue.arrayUnion(songId));
 
-                                // Ajoute l'image si la playlist n'en a pas et n'est pas liked_songs
                                 if (!doc.getId().equals("liked_songs") && (doc.getString("imageUrl") == null || doc.getString("imageUrl").isEmpty())) {
                                     updates.put("imageUrl", currentSong.getImageUrl());
                                 }

@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
@@ -24,6 +26,8 @@ public class PlaylistDetailActivity extends AppCompatActivity {
     private RecyclerView songsRecyclerView;
     private SongAdapter songAdapter;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
+    private List<Song> loadedSongs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,7 @@ public class PlaylistDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_playlist_detail);
 
         db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         ImageButton backButton = findViewById(R.id.back_button);
         TextView playlistNameText = findViewById(R.id.playlist_name);
@@ -39,14 +44,26 @@ public class PlaylistDetailActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
 
+        songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         songAdapter = new SongAdapter();
         songAdapter.setShowFullHearts(true);
         songsRecyclerView.setAdapter(songAdapter);
 
+        songAdapter.setOnRemoveSongListener(song -> removeSongFromPlaylist(song));
+
+        songAdapter.setOnSongClickListener(song -> {
+            Intent intent = new Intent(PlaylistDetailActivity.this, MusicDisplayActivity.class);
+            intent.putExtra("SONG_DATA", song);
+            startActivity(intent);
+        });
+
+        currentPlaylist = getIntent().getParcelableExtra("PLAYLIST_DATA");
+
         if (currentPlaylist != null) {
             playlistNameText.setText(currentPlaylist.getName());
 
-            if (currentPlaylist.getId().equals("liked_songs")) {
+            // Gestion de l'image de couverture
+            if ("liked_songs".equals(currentPlaylist.getId())) {
                 playlistImage.setImageResource(R.drawable.heart_full);
             } else if (currentPlaylist.getImageUrl() != null && !currentPlaylist.getImageUrl().isEmpty()) {
                 Picasso.get().load(currentPlaylist.getImageUrl()).into(playlistImage);
@@ -61,25 +78,36 @@ public class PlaylistDetailActivity extends AppCompatActivity {
     private void fetchSongsForPlaylist() {
         if (currentPlaylist.getSongIds() == null || currentPlaylist.getSongIds().isEmpty()) {
             Toast.makeText(this, "Cette playlist est vide", Toast.LENGTH_SHORT).show();
+            loadedSongs.clear();
+            songAdapter.setSongList(loadedSongs);
             return;
         }
 
-        List<Song> songsList = new ArrayList<>();
-
-        // On récupère chaque musique via son ID
+        loadedSongs.clear();
         for (String songId : currentPlaylist.getSongIds()) {
             db.collection("songs").document(songId).get().addOnSuccessListener(doc -> {
                 if (doc.exists()) {
                     Song song = doc.toObject(Song.class);
                     if (song != null) {
                         song.setId(doc.getId());
-                        songsList.add(song);
-                        songAdapter.setSongList(songsList);
+                        loadedSongs.add(song);
+                        songAdapter.setSongList(new ArrayList<>(loadedSongs));
                     }
                 }
-            }).addOnFailureListener(e -> {
-                Log.e("PlaylistDetail", "Erreur récupération musique: " + songId, e);
             });
         }
+    }
+
+    private void removeSongFromPlaylist(Song song) {
+        if (auth.getCurrentUser() == null) return;
+
+        db.collection("users").document(auth.getCurrentUser().getUid())
+                .collection("playlists").document(currentPlaylist.getId())
+                .update("songIds", FieldValue.arrayRemove(song.getId()))
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Musique retirée", Toast.LENGTH_SHORT).show();
+                    loadedSongs.remove(song);
+                    songAdapter.setSongList(new ArrayList<>(loadedSongs));
+                });
     }
 }

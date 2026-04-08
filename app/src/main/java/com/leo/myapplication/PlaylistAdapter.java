@@ -45,13 +45,11 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         if (currentPlaylist.getImageUrl() != null && !currentPlaylist.getImageUrl().isEmpty()) {
             Picasso.get().load(currentPlaylist.getImageUrl()).into(holder.imageView);
         } else {
-            holder.imageView.setImageResource(R.drawable.music_image_placeholder);
+            holder.imageView.setImageResource(R.drawable.playlist_icon);
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null && position != RecyclerView.NO_POSITION) {
-                listener.onPlaylistClick(currentPlaylist);
-            }
+            if (listener != null) listener.onPlaylistClick(currentPlaylist);
         });
     }
 

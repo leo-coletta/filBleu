@@ -15,33 +15,33 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     private List<Song> songList = new ArrayList<>();
     private OnSongClickListener listener;
-    private OnFavoriteClickListener favoriteListener;
-    private boolean showFullHearts = false; // Par défaut, on suit l'état réel
+
+    private OnRemoveSongListener removeSongListener;
+    private boolean showFullHearts = false;
 
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
 
-    public interface OnFavoriteClickListener {
-        void onFavoriteClick(Song song);
+    public interface OnRemoveSongListener {
+        void onRemoveSong(Song song);
     }
 
     public void setOnSongClickListener(OnSongClickListener listener) {
         this.listener = listener;
     }
 
-    public void setOnFavoriteClickListener(OnFavoriteClickListener listener) {
-        this.favoriteListener = listener;
+    public void setOnRemoveSongListener(OnRemoveSongListener listener) {
+        this.removeSongListener = listener;
     }
 
-    // Nouvelle méthode pour forcer l'affichage des cœurs pleins
     public void setShowFullHearts(boolean show) {
         this.showFullHearts = show;
         notifyDataSetChanged();
     }
 
     public void setSongList(List<Song> songList) {
-        this.songList = songList;
+        this.songList = new ArrayList<>(songList);
         notifyDataSetChanged();
     }
 
@@ -76,7 +76,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         });
 
         holder.favoriteIcon.setOnClickListener(v -> {
-            if (favoriteListener != null) favoriteListener.onFavoriteClick(currentSong);
+            if (removeSongListener != null) {
+                removeSongListener.onRemoveSong(currentSong);
+            }
         });
     }
 
