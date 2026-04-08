@@ -36,10 +36,10 @@ public class MainActivity extends AppCompatActivity {
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton profileButton = findViewById(R.id.profile_button);
         Button musicButton = findViewById(R.id.music_display_button);
-        
+
         recommended1 = findViewById(R.id.recomended1);
         recommended2 = findViewById(R.id.recommended2);
-        
+
         recentTracksRecyclerView = findViewById(R.id.recent_tracks_recycler_view);
         recentTracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         songAdapter = new SongAdapter();
@@ -67,14 +67,15 @@ public class MainActivity extends AppCompatActivity {
 
         songAdapter.setOnSongClickListener(song -> {
             List<Song> toutesLesMusiques = songAdapter.getSongList();
-
             int indexActuel = toutesLesMusiques.indexOf(song);
+
+            // Initialisation de la file d'attente globale
             PlaybackManager.getInstance().initQueue(toutesLesMusiques, indexActuel);
 
             Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
             intent.putExtra("SONG_DATA", song);
             startActivity(intent);
-        });
+        }); // Accolade fermante corrigée ici
 
         db.collection("songs")
                 .get()
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                             song.setId(document.getId());
                             songList.add(song);
                         }
-                        
+
                         if (!songList.isEmpty()) {
                             displayRecommended(songList);
                             songAdapter.setSongList(songList);
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "Error getting documents: ", task.getException());
                     }
                 });
-    }
+    } // Accolade fermante du onCreate corrigée ici
 
     private void displayRecommended(List<Song> songs) {
         if (!songs.isEmpty()) {
@@ -104,18 +105,22 @@ public class MainActivity extends AppCompatActivity {
                 Picasso.get().load(s1.getImageUrl()).into(recommended1);
             }
             recommended1.setOnClickListener(v -> {
+                // On initialise la file d'attente avec la liste chargée
+                PlaybackManager.getInstance().initQueue(songs, 0);
                 Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
                 intent.putExtra("SONG_DATA", s1);
                 startActivity(intent);
             });
         }
-        
+
         if (songs.size() >= 2) {
             Song s2 = songs.get(1);
             if (s2.getImageUrl() != null && !s2.getImageUrl().isEmpty()) {
                 Picasso.get().load(s2.getImageUrl()).into(recommended2);
             }
             recommended2.setOnClickListener(v -> {
+                // On initialise la file d'attente avec la liste chargée
+                PlaybackManager.getInstance().initQueue(songs, 1);
                 Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
                 intent.putExtra("SONG_DATA", s2);
                 startActivity(intent);

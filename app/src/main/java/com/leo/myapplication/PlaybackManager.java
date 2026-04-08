@@ -35,15 +35,17 @@ public class PlaybackManager {
 
     public void skipNext() {
         Song next = queue.getNext();
-        if (next != null && listener != null) listener.onSongChanged(next, true);
+        if (next != null && listener != null) {
+            listener.onSongChanged(next, true);
+        }
     }
 
     public void skipPrevious() {
         Song prev = queue.getPrevious();
-        if (prev != null && listener != null) listener.onSongChanged(prev, false);
+        if (prev != null && listener != null) {
+            listener.onSongChanged(prev, false);
+        }
     }
-
-    public Song getCurrentSong() { return queue.getCurrent(); }
 
     public void play(String url, MediaPlayer.OnPreparedListener preparedListener) {
         if (mediaPlayer != null) {
@@ -58,7 +60,7 @@ public class PlaybackManager {
             mediaPlayer.prepareAsync();
             mediaPlayer.setOnPreparedListener(preparedListener);
         } catch (IOException e) {
-            Log.e("PlaybackManager", "Error", e);
+            Log.e("PlaybackManager", "Erreur audio", e);
         }
     }
 
@@ -72,4 +74,6 @@ public class PlaybackManager {
     public boolean isPlaying() {
         return mediaPlayer != null && mediaPlayer.isPlaying();
     }
+
+    public Song getCurrentSong() { return queue.getCurrent(); }
 }

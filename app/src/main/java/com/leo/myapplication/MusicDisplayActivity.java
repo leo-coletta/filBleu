@@ -6,113 +6,94 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
-import com.squareup.picasso.Picasso;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-
-import java.io.IOException;
+import com.squareup.picasso.Picasso;
 
 public class MusicDisplayActivity extends AppCompatActivity {
 
     private TextView songTextView;
     private TextView artistTextView;
     private ImageView musicImageView;
-    private Song currentSong;
-    private MediaPlayer mediaPlayer;
     private ImageButton playPauseButton;
+    private PlaybackManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_display);
 
+        // 1. Initialisation des vues
+        songTextView = findViewById(R.id.music_name);
+        artistTextView = findViewById(R.id.artist_name);
+        musicImageView = findViewById(R.id.music_image);
+        playPauseButton = findViewById(R.id.play_pause_button);
+        ImageButton nextButton = findViewById(R.id.next_button);
+        ImageButton previousButton = findViewById(R.id.back_button);
+
+        // Boutons de navigation
         ImageButton searchButton = findViewById(R.id.search_button);
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton homeButton = findViewById(R.id.home_button);
         ImageButton backButton = findViewById(R.id.back_page_button);
 
-        ImageButton nextButton = findViewById(R.id.next_button);
-        ImageButton previousButton = findViewById(R.id.back_button);
-        PlaybackManager manager = PlaybackManager.getInstance();
+        // 2. Initialisation du Manager (CORRECTION DU CRASH)
+        // On utilise la variable de classe "manager" directement
+        manager = PlaybackManager.getInstance();
 
-        songTextView = findViewById(R.id.music_name);
-        artistTextView = findViewById(R.id.artist_name);
-        musicImageView = findViewById(R.id.music_image);
-        playPauseButton = findViewById(R.id.play_pause_button);
-
-        homeButton.setOnClickListener( click -> {
-            Intent intentH = new Intent( getApplicationContext(), MainActivity.class);
-            startActivity(intentH);
-        });
-
-        searchButton.setOnClickListener( click -> {
-            Intent intentS = new Intent( getApplicationContext(), ResearchActivity.class);
-            startActivity(intentS);
-        });
-
-        libraryButton.setOnClickListener( click -> {
-            Intent intentL = new Intent( getApplicationContext(), LibraryActivity.class);
-            startActivity(intentL);
-        });
-
-        backButton.setOnClickListener( click -> {
-            finish();
-        });
-
-        manager.setListener((newSong, isNext) -> {
-            runOnUiThread(() -> {
-                animateMusicChange(newSong, isNext);
-            });
+        // 3. Configuration des écouteurs
+        manager.setOnSongChangedListener((newSong, isNext) -> {
+            runOnUiThread(() -> animateMusicChange(newSong, isNext));
         });
 
         nextButton.setOnClickListener(v -> manager.skipNext());
         previousButton.setOnClickListener(v -> manager.skipPrevious());
 
+        playPauseButton.setOnClickListener(v -> {
+            manager.togglePlayPause();
+            updatePlayPauseIcon();
+        });
+
+        // Navigation standard
+        homeButton.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
+        searchButton.setOnClickListener(v -> startActivity(new Intent(this, ResearchActivity.class)));
+        libraryButton.setOnClickListener(v -> startActivity(new Intent(this, LibraryActivity.class)));
+        backButton.setOnClickListener(v -> finish());
+
+        // 4. Gestion de la musique entrante (Intent)
         Intent intent = getIntent();
-
         if (intent != null && intent.hasExtra("SONG_DATA")) {
-            currentSong = intent.getParcelableExtra("SONG_DATA");
-            updateUI(currentSong);
-            playSong(currentSong);
-
-            CurrentSongManager.getInstance().setCurrentSong(currentSong);
-
-            // Mise à jour de l'interface utilisateur
-            if (currentSong != null) {
-                songTextView.setText(currentSong.getTitle());
-                artistTextView.setText(currentSong.getArtist());
-
-                if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
-                    Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
-                }
-
-                if (currentSong.getAudioUrl() != null && !currentSong.getAudioUrl().isEmpty()) {
-                    initMediaPlayer(currentSong.getAudioUrl());
-                }
+            Song incomingSong = intent.getParcelableExtra("SONG_DATA");
+            if (incomingSong != null) {
+                CurrentSongManager.getInstance().setCurrentSong(incomingSong);
+                updateUI(incomingSong);
+                startPlayback(incomingSong);
+            }
+        } else {
+            // Si on ouvre la vue sans intent, on affiche ce qui joue déjà
+            Song current = manager.getCurrentSong();
+            if (current != null) {
+                updateUI(current);
+                updatePlayPauseIcon();
             }
         }
-
-        setupPlayPauseLogic();
-
     }
 
     private void animateMusicChange(Song song, boolean isNext) {
+        if (song == null) return;
+
         float exitTarget = isNext ? -1000f : 1000f;
         float entryStart = isNext ? 1000f : -1000f;
 
-        ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
+        // Sortie : Slide + Fade
+        ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.slide);
         slideOut.setTarget(musicImageView);
         slideOut.setFloatValues(0f, exitTarget);
 
-        ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.fade);
+        ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.fade);
         fadeOut.setTarget(musicImageView);
         fadeOut.setFloatValues(1f, 0f);
 
@@ -122,10 +103,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
         animOut.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                // Mise à jour pendant que l'image est invisible
                 updateUI(song);
-                playSong(song);
+                startPlayback(song);
+
                 musicImageView.setTranslationX(entryStart);
 
+                // Entrée : Slide + Fade
                 ObjectAnimator slideIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
                 slideIn.setTarget(musicImageView);
                 slideIn.setFloatValues(entryStart, 0f);
@@ -139,81 +123,36 @@ public class MusicDisplayActivity extends AppCompatActivity {
                 animIn.start();
             }
         });
-
         animOut.start();
     }
 
     private void updateUI(Song song) {
         if (song == null) return;
-
         songTextView.setText(song.getTitle());
         artistTextView.setText(song.getArtist());
-
         if (song.getImageUrl() != null && !song.getImageUrl().isEmpty()) {
             Picasso.get().load(song.getImageUrl()).into(musicImageView);
-        } else {
-            musicImageView.setImageResource(R.drawable.music_image_placeholder);
         }
     }
 
-    private void playSong(Song song) {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-
-        if (song.getAudioUrl() != null && !song.getAudioUrl().isEmpty()) {
-            initMediaPlayer(song.getAudioUrl());
-        }
-    }
-
-    private void initMediaPlayer(String url) {
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioAttributes(
-                new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-        );
-
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(mp -> {
+    private void startPlayback(Song song) {
+        if (song != null && song.getAudioUrl() != null) {
+            manager.play(song.getAudioUrl(), mp -> {
                 mp.start();
-                if (playPauseButton != null) {
-                    playPauseButton.setImageResource(R.drawable.pause);
-                }
+                updatePlayPauseIcon();
             });
-        } catch (IOException e) {
-            Log.e("AudioError", "Erreur de chargement du flux audio", e);
         }
     }
 
-    private void setupPlayPauseLogic() {
-        playPauseButton.setOnClickListener(v -> {
-            if (mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    playPauseButton.setImageResource(R.drawable.play);
-                } else {
-                    mediaPlayer.start();
-                    playPauseButton.setImageResource(R.drawable.pause);
-                }
-            }
-        });
+    private void updatePlayPauseIcon() {
+        if (manager != null) {
+            playPauseButton.setImageResource(manager.isPlaying() ? R.drawable.pause : R.drawable.play);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        // On ne release pas le manager ici car c'est un singleton qui doit continuer à jouer en background
     }
-
 }
