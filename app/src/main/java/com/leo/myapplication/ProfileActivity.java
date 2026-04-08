@@ -7,7 +7,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -22,10 +29,23 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText newPasswordField;
     private Button savePasswordButton;
 
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        currentUser = auth.getCurrentUser();
+
+        if (currentUser == null) {
+            goToLogin();
+            return;
+        }
 
         usernameField = findViewById(R.id.username_field);
         editUsername = findViewById(R.id.edit_username);
@@ -44,55 +64,134 @@ public class ProfileActivity extends AppCompatActivity {
         Button musicButton = findViewById(R.id.music_display_button);
         Button logoutButton = findViewById(R.id.logout_button);
 
-        homeButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), MainActivity.class);
+        loadUserData();
+
+        homeButton.setOnClickListener(click -> {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
         });
 
-        searchButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);
+        searchButton.setOnClickListener(click -> {
+            Intent intent = new Intent(getApplicationContext(), ResearchActivity.class);
             startActivity(intent);
         });
 
-        libraryButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), LibraryActivity.class);
+        libraryButton.setOnClickListener(click -> {
+            Intent intent = new Intent(getApplicationContext(), LibraryActivity.class);
             startActivity(intent);
         });
 
-        musicButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
+        musicButton.setOnClickListener(click -> {
+            Intent intent = new Intent(getApplicationContext(), MusicDisplayActivity.class);
             startActivity(intent);
         });
 
         logoutButton.setOnClickListener(v -> {
-            // TODO: Ajouter la méthode de déconnexion Firebase ici plus tard
-            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            auth.signOut();
+            goToLogin();
         });
 
         editUsername.setOnClickListener(v -> {
-            usernameField.setEnabled(true);
-            usernameField.requestFocus();
+            if (!usernameField.isEnabled()) {
+                usernameField.setEnabled(true);
+                usernameField.requestFocus();
+            } else {
+                usernameField.setEnabled(false);
+                updateUsername(usernameField.getText().toString().trim());
+            }
         });
 
         editEmail.setOnClickListener(v -> {
-            emailField.setEnabled(true);
-            emailField.requestFocus();
+            if (!emailField.isEnabled()) {
+                emailField.setEnabled(true);
+                emailField.requestFocus();
+            } else {
+                emailField.setEnabled(false);
+                updateEmail(emailField.getText().toString().trim());
+            }
         });
 
         editPassword.setOnClickListener(v -> {
-            passwordContainer.setVisibility(View.VISIBLE);
+            passwordContainer.setVisibility(passwordContainer.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
         });
 
         savePasswordButton.setOnClickListener(v -> {
-            String oldPass = oldPasswordField.getText().toString();
-            String newPass = newPasswordField.getText().toString();
+            String oldPass = oldPasswordField.getText().toString().trim();
+            String newPass = newPasswordField.getText().toString().trim();
 
-            passwordContainer.setVisibility(View.GONE);
-            oldPasswordField.setText("");
-            newPasswordField.setText("");
+            if (oldPass.isEmpty() || newPass.isEmpty()) {
+                Toast.makeText(this, "Remplissez les deux champs", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (newPass.length() < 6) {
+                Toast.makeText(this, "Le nouveau mot de passe est trop court", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            updatePassword(oldPass, newPass);
+        });
+    }
+
+    private void goToLogin() {
+        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void loadUserData() {
+        db.collection("users").document(currentUser.getUid()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String username = documentSnapshot.getString("username");
+                        usernameField.setText(username != null ? username : "");
+                    }
+                });
+
+        emailField.setText(currentUser.getEmail());
+    }
+
+    private void updateUsername(String newUsername) {
+        if (newUsername.isEmpty()) return;
+
+        db.collection("users").document(currentUser.getUid())
+                .update("username", newUsername)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Nom d'utilisateur mis à jour", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
+    }
+
+    private void updateEmail(String newEmail) {
+        if (newEmail.isEmpty() || newEmail.equals(currentUser.getEmail())) return;
+
+        currentUser.updateEmail(newEmail).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                db.collection("users").document(currentUser.getUid()).update("email", newEmail);
+                Toast.makeText(this, "Email mis à jour", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Échec. Reconnectez-vous puis réessayez.", Toast.LENGTH_LONG).show();
+                emailField.setText(currentUser.getEmail());
+            }
+        });
+    }
+
+    private void updatePassword(String oldPass, String newPass) {
+        AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPass);
+
+        currentUser.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                currentUser.updatePassword(newPass).addOnCompleteListener(updateTask -> {
+                    if (updateTask.isSuccessful()) {
+                        Toast.makeText(this, "Mot de passe modifié", Toast.LENGTH_SHORT).show();
+                        passwordContainer.setVisibility(View.GONE);
+                        oldPasswordField.setText("");
+                        newPasswordField.setText("");
+                    } else {
+                        Toast.makeText(this, "Erreur lors de la modification", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

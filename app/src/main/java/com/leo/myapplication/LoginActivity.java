@@ -8,6 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText identifiantInput, passwordInput;
@@ -33,13 +35,25 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void attemptLogin() {
-        String identifiant = identifiantInput.getText().toString().trim();
+        String email = identifiantInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        if (identifiant.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Identifiants incorrects", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
