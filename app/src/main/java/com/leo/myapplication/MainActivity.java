@@ -50,12 +50,6 @@ public class MainActivity extends AppCompatActivity {
         recentTracksAdapter = new SongAdapter();
         recentTracksRecyclerView.setAdapter(recentTracksAdapter);
 
-        recentTracksAdapter.setOnSongClickListener(song -> {
-            Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
-            intent.putExtra("SONG_DATA", song);
-            startActivity(intent);
-        });
-
         searchButton.setOnClickListener( click -> {
             Intent intent = new Intent( getApplicationContext(), ResearchActivity.class);
             startActivity(intent);
@@ -76,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        songAdapter.setOnSongClickListener(song -> {
-            List<Song> toutesLesMusiques = songAdapter.getSongList();
+        recentTracksAdapter.setOnSongClickListener(song -> {
+            List<Song> toutesLesMusiques = recentTracksAdapter.getSongList();
             int indexActuel = toutesLesMusiques.indexOf(song);
 
             // Initialisation de la file d'attente globale

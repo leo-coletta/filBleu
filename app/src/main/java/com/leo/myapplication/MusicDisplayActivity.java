@@ -7,12 +7,14 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.os.Handler;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.squareup.picasso.Picasso;
 
 public class MusicDisplayActivity extends AppCompatActivity {
@@ -42,6 +44,10 @@ public class MusicDisplayActivity extends AppCompatActivity {
         playPauseButton = findViewById(R.id.play_pause_button);
         ImageButton nextButton = findViewById(R.id.next_button);
         ImageButton previousButton = findViewById(R.id.back_button);
+        ImageButton searchButton = findViewById(R.id.search_button);
+        ImageButton libraryButton = findViewById(R.id.playlists_button);
+        ImageButton homeButton = findViewById(R.id.home_button);
+        ImageButton backButton = findViewById(R.id.back_page_button);
 
         seekBar = findViewById(R.id.music_timebar);
         currentTimeText = findViewById(R.id.music_time_played);
@@ -49,15 +55,12 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
         setupSeekBar();
 
-        homeButton.setOnClickListener( click -> {
-            Intent intentH = new Intent( getApplicationContext(), MainActivity.class);
+        homeButton.setOnClickListener(click -> {
+            Intent intentH = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intentH);
         });
         // Boutons de navigation
-        ImageButton searchButton = findViewById(R.id.search_button);
-        ImageButton libraryButton = findViewById(R.id.playlists_button);
-        ImageButton homeButton = findViewById(R.id.home_button);
-        ImageButton backButton = findViewById(R.id.back_page_button);
+
 
         // 2. Initialisation du Manager (CORRECTION DU CRASH)
         // On utilise la variable de classe "manager" directement
@@ -98,48 +101,43 @@ public class MusicDisplayActivity extends AppCompatActivity {
                 updatePlayPauseIcon();
             }
         }
-    }
-            Song selectedSong = intent.getParcelableExtra("SONG_DATA");
-            Song currentlyPlaying = CurrentSongManager.getInstance().getCurrentSong();
-            if (currentlyPlaying == null || !currentlyPlaying.getId().equals(selectedSong.getId())) {
-                currentSong = selectedSong;
-                CurrentSongManager.getInstance().playSong(currentSong, () -> {
-                    // Callback exécuté quand la musique est PRÊTE
-                    playPauseButton.setImageResource(R.drawable.pause);
 
-                    // Initialisation de la durée max de la SeekBar
-                    int totalDuration = CurrentSongManager.getInstance().getDuration();
-                    seekBar.setMax(totalDuration);
-                    totalTimeText.setText(createTimeLabel(totalDuration));
+        Song selectedSong = intent.getParcelableExtra("SONG_DATA");
+        Song currentlyPlaying = CurrentSongManager.getInstance().getCurrentSong();
+        if (currentlyPlaying == null || !currentlyPlaying.getId().equals(selectedSong.getId())) {
+            currentSong = selectedSong;
+            CurrentSongManager.getInstance().playSong(currentSong, () -> {
+                // Callback exécuté quand la musique est PRÊTE
+                playPauseButton.setImageResource(R.drawable.pause);
 
-                    // Démarrage du rafraîchissement
-                    updateSeekBar();
-                });
-            } else {
-                // Musique DÉJÀ en cours : on restaure l'interface immédiatement
-                currentSong = currentlyPlaying;
+                // Initialisation de la durée max de la SeekBar
                 int totalDuration = CurrentSongManager.getInstance().getDuration();
                 seekBar.setMax(totalDuration);
                 totalTimeText.setText(createTimeLabel(totalDuration));
+
+                // Démarrage du rafraîchissement
                 updateSeekBar();
+            });
+        } else {
+            // Musique DÉJÀ en cours : on restaure l'interface immédiatement
+            currentSong = currentlyPlaying;
+            int totalDuration = CurrentSongManager.getInstance().getDuration();
+            seekBar.setMax(totalDuration);
+            totalTimeText.setText(createTimeLabel(totalDuration));
+            updateSeekBar();
 
-                if (CurrentSongManager.getInstance().isPlaying()) {
-                    playPauseButton.setImageResource(R.drawable.pause);
-                } else {
-                    playPauseButton.setImageResource(R.drawable.play);
-                }
-            }
-
-            songTextView.setText(currentSong.getTitle());
-            artistTextView.setText(currentSong.getArtist());
-            if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
-                Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
+            if (CurrentSongManager.getInstance().isPlaying()) {
+                playPauseButton.setImageResource(R.drawable.pause);
+            } else {
+                playPauseButton.setImageResource(R.drawable.play);
             }
         }
 
-    private void animateMusicChange(Song song, boolean isNext) {
-        if (song == null) return;
-
+        songTextView.setText(currentSong.getTitle());
+        artistTextView.setText(currentSong.getArtist());
+        if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
+            Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
+        }
     }
 
     @Override
@@ -150,7 +148,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
-    private void animateMusicChange(int newImageResource, boolean isNext) {
+    private void animateMusicChange(Song song, boolean isNext) {
         float exitDestination = isNext ? -1000f : 1000f;
         float exitTarget = isNext ? -1000f : 1000f;
         float entryStart = isNext ? 1000f : -1000f;
@@ -215,6 +213,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
         if (manager != null) {
             playPauseButton.setImageResource(manager.isPlaying() ? R.drawable.pause : R.drawable.play);
         }
+    }
     private void setupPlayPauseLogic() {
         playPauseButton.setOnClickListener(v -> {
             if (CurrentSongManager.getInstance().isPlaying()) {

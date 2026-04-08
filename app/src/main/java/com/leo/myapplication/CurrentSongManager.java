@@ -105,4 +105,8 @@ public class CurrentSongManager {
             mediaPlayer.seekTo(position);
         }
     }
+
+    public void setCurrentSong(Song song) {
+        this.currentSong = song;
+    }
 }
