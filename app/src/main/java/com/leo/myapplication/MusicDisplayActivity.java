@@ -1,5 +1,10 @@
 package com.leo.myapplication;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
@@ -33,6 +38,9 @@ public class MusicDisplayActivity extends AppCompatActivity {
         ImageButton libraryButton = findViewById(R.id.playlists_button);
         ImageButton homeButton = findViewById(R.id.home_button);
         ImageButton backButton = findViewById(R.id.back_page_button);
+
+        ImageButton nextButton = findViewById(R.id.next_button);
+        ImageButton previousButton = findViewById(R.id.back_button);
         songTextView = findViewById(R.id.music_name);
         artistTextView = findViewById(R.id.artist_name);
         musicImageView = findViewById(R.id.music_image);
@@ -55,6 +63,14 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
         backButton.setOnClickListener( click -> {
             finish();
+        });
+
+        nextButton.setOnClickListener(click -> {
+            animateMusicChange(R.drawable.music_image_placeholder, true);
+        });
+
+        previousButton.setOnClickListener(click -> {
+            animateMusicChange(R.drawable.music_image_placeholder, false);
         });
 
         Intent intent = getIntent();
@@ -81,6 +97,45 @@ public class MusicDisplayActivity extends AppCompatActivity {
 
         setupPlayPauseLogic();
 
+    }
+
+    private void animateMusicChange(int newImageResource, boolean isNext) {
+        float exitDestination = isNext ? -1000f : 1000f;
+        float entryStart = isNext ? 1000f : -1000f;
+
+        ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
+        slideOut.setTarget(musicImageView);
+        slideOut.setFloatValues(0f, exitDestination);
+
+        ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.fade);
+        fadeOut.setTarget(musicImageView);
+        fadeOut.setFloatValues(1f, 0f);
+
+        AnimatorSet animOut = new AnimatorSet();
+        animOut.playTogether(slideOut, fadeOut);
+
+        animOut.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                musicImageView.setImageResource(newImageResource);
+
+                musicImageView.setTranslationX(entryStart);
+
+                ObjectAnimator slideIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
+                slideIn.setTarget(musicImageView);
+                slideIn.setFloatValues(entryStart, 0f);
+
+                ObjectAnimator fadeIn = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.fade);
+                fadeIn.setTarget(musicImageView);
+                fadeIn.setFloatValues(0f, 1f);
+
+                AnimatorSet animIn = new AnimatorSet();
+                animIn.playTogether(slideIn, fadeIn);
+                animIn.start();
+            }
+        });
+
+        animOut.start();
     }
 
     private void initMediaPlayer(String url) {
