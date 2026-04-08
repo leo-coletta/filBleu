@@ -13,6 +13,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Activité permettant la création d'un nouveau compte utilisateur.
+ * <p>
+ * Valide les saisies (email, mot de passe), authentifie l'utilisateur via Firebase Auth
+ * et enregistre ses données de profil dans Firebase Firestore.
+ * </p>
+ */
 public class AccountCreationActivity extends AppCompatActivity {
 
     private EditText identifiantInput, passwordInput, emailInput;
@@ -31,10 +38,13 @@ public class AccountCreationActivity extends AppCompatActivity {
         tvGoToLogin = findViewById(R.id.tv_go_to_login);
 
         tvGoToLogin.setOnClickListener(v -> finish());
-
         btnCreateAccount.setOnClickListener(v -> validateAndCreate());
     }
 
+    /**
+     * Vérifie la validité des champs de saisie et lance le processus de création de compte
+     * sur Firebase si les règles sont respectées (email valide, mot de passe > 5 caractères).
+     */
     private void validateAndCreate() {
         String identifiant = identifiantInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
