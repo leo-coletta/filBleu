@@ -6,6 +6,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +58,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         holder.textViewTitle.setText(currentSong.getTitle());
         holder.textViewArtist.setText(currentSong.getArtist());
 
+        Picasso.get()
+                .load(currentSong.getImageUrl())
+                .placeholder(R.drawable.music_image_placeholder)
+                .error(R.drawable.music_image_placeholder)
+                .into(holder.musicImage);
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null && position != RecyclerView.NO_POSITION) {
                 listener.onSongClick(currentSong);
@@ -82,12 +91,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         TextView textViewTitle;
         TextView textViewArtist;
         ImageView favoriteIcon;
+        ImageView musicImage;
 
         public SongViewHolder(View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.music_name_item_song);
             textViewArtist = itemView.findViewById(R.id.artist_name_item_song);
             favoriteIcon = itemView.findViewById(R.id.heart_button);
+            musicImage = itemView.findViewById(R.id.music_image_item_song);
         }
     }
 }
