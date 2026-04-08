@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView recommended1, recommended2;
     private RecyclerView recentTracksRecyclerView;
     private SongAdapter songAdapter;
+    private MiniPlayerController miniPlayerController;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "Error getting documents: ", task.getException());
                     }
                 });
+
+        miniPlayerController = new MiniPlayerController(this);
     }
 
     private void displayRecommended(List<Song> songs) {
@@ -115,6 +119,14 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("SONG_DATA", s2);
                 startActivity(intent);
             });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (miniPlayerController != null) {
+            miniPlayerController.updateUI();
         }
     }
 }

@@ -6,15 +6,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
 import com.squareup.picasso.Picasso;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import android.os.Handler;
+import android.widget.SeekBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -25,9 +23,14 @@ public class MusicDisplayActivity extends AppCompatActivity {
     private TextView songTextView;
     private TextView artistTextView;
     private ImageView musicImageView;
-    private Song currentSong;
-    private MediaPlayer mediaPlayer;
     private ImageButton playPauseButton;
+    private Song currentSong;
+    private SeekBar seekBar;
+    private TextView currentTimeText;
+    private TextView totalTimeText;
+
+    private Handler handler = new Handler();
+    private Runnable updater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,12 @@ public class MusicDisplayActivity extends AppCompatActivity {
         artistTextView = findViewById(R.id.artist_name);
         musicImageView = findViewById(R.id.music_image);
         playPauseButton = findViewById(R.id.play_pause_button);
+
+        seekBar = findViewById(R.id.music_timebar);
+        currentTimeText = findViewById(R.id.music_time_played);
+        totalTimeText = findViewById(R.id.music_time_remaining);
+
+        setupSeekBar();
 
         homeButton.setOnClickListener( click -> {
             Intent intentH = new Intent( getApplicationContext(), MainActivity.class);
@@ -76,27 +85,54 @@ public class MusicDisplayActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if (intent != null && intent.hasExtra("SONG_DATA")) {
-            currentSong = intent.getParcelableExtra("SONG_DATA");
+            Song selectedSong = intent.getParcelableExtra("SONG_DATA");
+            Song currentlyPlaying = CurrentSongManager.getInstance().getCurrentSong();
+            if (currentlyPlaying == null || !currentlyPlaying.getId().equals(selectedSong.getId())) {
+                currentSong = selectedSong;
+                CurrentSongManager.getInstance().playSong(currentSong, () -> {
+                    // Callback exécuté quand la musique est PRÊTE
+                    playPauseButton.setImageResource(R.drawable.pause);
 
-            CurrentSongManager.getInstance().setCurrentSong(currentSong);
+                    // Initialisation de la durée max de la SeekBar
+                    int totalDuration = CurrentSongManager.getInstance().getDuration();
+                    seekBar.setMax(totalDuration);
+                    totalTimeText.setText(createTimeLabel(totalDuration));
 
-            // Mise à jour de l'interface utilisateur
-            if (currentSong != null) {
-                songTextView.setText(currentSong.getTitle());
-                artistTextView.setText(currentSong.getArtist());
+                    // Démarrage du rafraîchissement
+                    updateSeekBar();
+                });
+            } else {
+                // Musique DÉJÀ en cours : on restaure l'interface immédiatement
+                currentSong = currentlyPlaying;
+                int totalDuration = CurrentSongManager.getInstance().getDuration();
+                seekBar.setMax(totalDuration);
+                totalTimeText.setText(createTimeLabel(totalDuration));
+                updateSeekBar();
 
-                if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
-                    Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
+                if (CurrentSongManager.getInstance().isPlaying()) {
+                    playPauseButton.setImageResource(R.drawable.pause);
+                } else {
+                    playPauseButton.setImageResource(R.drawable.play);
                 }
+            }
 
-                if (currentSong.getAudioUrl() != null && !currentSong.getAudioUrl().isEmpty()) {
-                    initMediaPlayer(currentSong.getAudioUrl());
-                }
+            songTextView.setText(currentSong.getTitle());
+            artistTextView.setText(currentSong.getArtist());
+            if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
+                Picasso.get().load(currentSong.getImageUrl()).into(musicImageView);
             }
         }
 
         setupPlayPauseLogic();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null && updater != null) {
+            handler.removeCallbacks(updater);
+        }
     }
 
     private void animateMusicChange(int newImageResource, boolean isNext) {
@@ -138,49 +174,68 @@ public class MusicDisplayActivity extends AppCompatActivity {
         animOut.start();
     }
 
-    private void initMediaPlayer(String url) {
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioAttributes(
-                new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-        );
-
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(mp -> {
-                mp.start();
-                if (playPauseButton != null) {
-                    playPauseButton.setImageResource(R.drawable.pause);
-                }
-            });
-        } catch (IOException e) {
-            Log.e("AudioError", "Erreur de chargement du flux audio", e);
-        }
-    }
-
     private void setupPlayPauseLogic() {
         playPauseButton.setOnClickListener(v -> {
-            if (mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    playPauseButton.setImageResource(R.drawable.play);
-                } else {
-                    mediaPlayer.start();
-                    playPauseButton.setImageResource(R.drawable.pause);
-                }
+            if (CurrentSongManager.getInstance().isPlaying()) {
+                CurrentSongManager.getInstance().pause();
+                playPauseButton.setImageResource(R.drawable.play);
+            } else {
+                CurrentSongManager.getInstance().resume();
+                playPauseButton.setImageResource(R.drawable.pause);
             }
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
+    private String createTimeLabel(int time) {
+        String timeLabel = "";
+        int min = time / 1000 / 60;
+        int sec = time / 1000 % 60;
+
+        timeLabel = min + ":";
+        if (sec < 10) timeLabel += "0";
+        timeLabel += sec;
+
+        return timeLabel;
+    }
+
+    private void setupSeekBar() {
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    currentTimeText.setText(createTimeLabel(progress));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Optionnel : mettre en pause le rafraîchissement pendant que l'utilisateur glisse le doigt
+                handler.removeCallbacks(updater);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Applique la nouvelle position au MediaPlayer
+                CurrentSongManager.getInstance().seekTo(seekBar.getProgress());
+                updateSeekBar();
+            }
+        });
+    }
+
+    private void updateSeekBar() {
+        if (CurrentSongManager.getInstance().getCurrentSong() != null) {
+            int currentPosition = CurrentSongManager.getInstance().getCurrentPosition();
+            seekBar.setProgress(currentPosition);
+            currentTimeText.setText(createTimeLabel(currentPosition));
+
+            // Crée une boucle qui s'exécute toutes les 500 millisecondes
+            updater = new Runnable() {
+                @Override
+                public void run() {
+                    updateSeekBar();
+                }
+            };
+            handler.postDelayed(updater, 500);
         }
     }
 
