@@ -2,6 +2,7 @@ package com.leo.myapplication;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,10 +51,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         holder.textViewTitle.setText(currentSong.getTitle());
         holder.textViewArtist.setText(currentSong.getArtist());
 
-        // Gestion du clic sur l'élément de la liste
         holder.itemView.setOnClickListener(v -> {
             if (listener != null && position != RecyclerView.NO_POSITION) {
                 listener.onSongClick(currentSong);
+            }
+        });
+
+        holder.favoriteIcon.setOnClickListener(v -> {
+            if (favoriteListener != null && position != RecyclerView.NO_POSITION) {
+                favoriteListener.onFavoriteClick(currentSong);
+                if (currentSong.isFavorite()) {
+                    holder.favoriteIcon.setImageResource(R.drawable.heart_full);
+                } else {
+                    holder.favoriteIcon.setImageResource(R.drawable.heart);
+                }
             }
         });
     }
@@ -66,11 +77,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     static class SongViewHolder extends RecyclerView.ViewHolder {
         TextView textViewTitle;
         TextView textViewArtist;
+        ImageView favoriteIcon;
 
         public SongViewHolder(View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.music_name_item_song);
             textViewArtist = itemView.findViewById(R.id.artist_name_item_song);
+            favoriteIcon = itemView.findViewById(R.id.heart_button);
         }
     }
 }

@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class    Playlist implements Parcelable {
+public class Playlist implements Parcelable {
     private String id;
     private String name;
     private String imageUrl;

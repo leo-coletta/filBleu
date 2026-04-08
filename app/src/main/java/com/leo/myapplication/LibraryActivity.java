@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
-
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +32,7 @@ public class LibraryActivity extends AppCompatActivity {
         ImageButton profileButton = findViewById(R.id.profile_button);
         ImageButton homeButton = findViewById(R.id.home_button);
         Button musicButton = findViewById(R.id.music_display_button);
-        
+
         songsRecyclerView = findViewById(R.id.songs_recycler_view);
         songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         songAdapter = new SongAdapter();
@@ -59,14 +59,24 @@ public class LibraryActivity extends AppCompatActivity {
         });
 
         musicButton.setOnClickListener( click -> {
-            Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
-            startActivity(intent);
+            Song playingSong = CurrentSongManager.getInstance().getCurrentSong();
+
+            if (playingSong != null) {
+                Intent intent = new Intent( getApplicationContext(), MusicDisplayActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Aucune musique en cours de lecture", Toast.LENGTH_SHORT).show();
+            }
         });
 
         songAdapter.setOnSongClickListener(song -> {
             Intent intent = new Intent(LibraryActivity.this, MusicDisplayActivity.class);
             intent.putExtra("SONG_DATA", song);
             startActivity(intent);
+        });
+
+        songAdapter.setOnFavoriteClickListener(song -> {
+            Toast.makeText(LibraryActivity.this, song.getTitle() + " ajouté aux favoris", Toast.LENGTH_SHORT).show();
         });
 
         playlistAdapter.setOnPlaylistClickListener(playlist -> {

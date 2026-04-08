@@ -23,6 +23,8 @@
 
         <activity android:name=".LibraryActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".PlaylistDetailActivity"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

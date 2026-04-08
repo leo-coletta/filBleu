@@ -11,6 +11,7 @@ public class Song implements Parcelable {
     private String coverUrl;
     private String audioUrl;
     private String imageUrl;
+    private boolean favorite = false;
 
     public Song() {}
 
@@ -64,5 +65,13 @@ public class Song implements Parcelable {
         parcel.writeString(coverUrl);
         parcel.writeString(audioUrl);
         parcel.writeString(imageUrl);
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

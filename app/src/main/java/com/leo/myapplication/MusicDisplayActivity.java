@@ -22,6 +22,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
     private ImageView musicImageView;
     private Song currentSong;
     private MediaPlayer mediaPlayer;
+    private ImageButton playPauseButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
         songTextView = findViewById(R.id.music_name);
         artistTextView = findViewById(R.id.artist_name);
         musicImageView = findViewById(R.id.music_image);
+        playPauseButton = findViewById(R.id.play_pause_button);
 
         homeButton.setOnClickListener( click -> {
             Intent intentH = new Intent( getApplicationContext(), MainActivity.class);
@@ -60,6 +62,8 @@ public class MusicDisplayActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra("SONG_DATA")) {
             currentSong = intent.getParcelableExtra("SONG_DATA");
 
+            CurrentSongManager.getInstance().setCurrentSong(currentSong);
+
             // Mise à jour de l'interface utilisateur
             if (currentSong != null) {
                 songTextView.setText(currentSong.getTitle());
@@ -74,6 +78,9 @@ public class MusicDisplayActivity extends AppCompatActivity {
                 }
             }
         }
+
+        setupPlayPauseLogic();
+
     }
 
     private void initMediaPlayer(String url) {
@@ -88,10 +95,29 @@ public class MusicDisplayActivity extends AppCompatActivity {
         try {
             mediaPlayer.setDataSource(url);
             mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                if (playPauseButton != null) {
+                    playPauseButton.setImageResource(R.drawable.pause);
+                }
+            });
         } catch (IOException e) {
             Log.e("AudioError", "Erreur de chargement du flux audio", e);
         }
+    }
+
+    private void setupPlayPauseLogic() {
+        playPauseButton.setOnClickListener(v -> {
+            if (mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    playPauseButton.setImageResource(R.drawable.play);
+                } else {
+                    mediaPlayer.start();
+                    playPauseButton.setImageResource(R.drawable.pause);
+                }
+            }
+        });
     }
 
     @Override
