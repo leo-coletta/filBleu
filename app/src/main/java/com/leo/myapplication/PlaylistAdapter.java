@@ -41,11 +41,11 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
         Playlist currentPlaylist = playlistList.get(position);
         holder.textViewName.setText(currentPlaylist.getName());
-        
+
         if (currentPlaylist.getImageUrl() != null && !currentPlaylist.getImageUrl().isEmpty()) {
             Picasso.get().load(currentPlaylist.getImageUrl()).into(holder.imageView);
         } else {
-            holder.imageView.setImageResource(R.drawable.playlist_icon);
+            holder.imageView.setImageResource(R.drawable.music_image_placeholder);
         }
 
         holder.itemView.setOnClickListener(v -> {
