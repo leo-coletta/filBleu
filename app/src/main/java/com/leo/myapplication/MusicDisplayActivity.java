@@ -32,6 +32,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
     private Runnable updater;
     private PlaybackManager manager;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
