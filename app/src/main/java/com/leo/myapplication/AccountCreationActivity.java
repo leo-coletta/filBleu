@@ -7,6 +7,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AccountCreationActivity extends AppCompatActivity {
 
@@ -50,5 +55,29 @@ public class AccountCreationActivity extends AppCompatActivity {
             return;
         }
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        String userId = auth.getCurrentUser().getUid();
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("username", identifiant);
+                        user.put("email", email);
+
+                        db.collection("users").document(userId)
+                                .set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(AccountCreationActivity.this, "Compte créé", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(AccountCreationActivity.this, "Erreur base de données", Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Toast.makeText(AccountCreationActivity.this, "Erreur de création: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }
