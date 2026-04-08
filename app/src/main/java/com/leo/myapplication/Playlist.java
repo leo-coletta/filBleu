@@ -48,7 +48,6 @@ public class Playlist implements Parcelable {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
     public List<String> getSongIds() { return songIds; }
     public void setSongIds(List<String> songIds) { this.songIds = songIds; }
 

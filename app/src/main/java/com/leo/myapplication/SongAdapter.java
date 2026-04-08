@@ -16,26 +16,33 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     private List<Song> songList = new ArrayList<>();
     private OnSongClickListener listener;
-    private OnFavoriteClickListener favoriteListener;
+
+    private OnRemoveSongListener removeSongListener;
+    private boolean showFullHearts = false;
 
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
 
-    public interface OnFavoriteClickListener {
-        void onFavoriteClick(Song song);
+    public interface OnRemoveSongListener {
+        void onRemoveSong(Song song);
     }
 
     public void setOnSongClickListener(OnSongClickListener listener) {
         this.listener = listener;
     }
 
-    public void setOnFavoriteClickListener(OnFavoriteClickListener listener) {
-        this.favoriteListener = listener;
+    public void setOnRemoveSongListener(OnRemoveSongListener listener) {
+        this.removeSongListener = listener;
+    }
+
+    public void setShowFullHearts(boolean show) {
+        this.showFullHearts = show;
+        notifyDataSetChanged();
     }
 
     public void setSongList(List<Song> songList) {
-        this.songList = songList;
+        this.songList = new ArrayList<>(songList);
         notifyDataSetChanged();
     }
 
@@ -46,7 +53,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @NonNull
     @Override
     public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Assurez-vous d'avoir un layout item_song.xml pour chaque ligne
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_song, parent, false);
         return new SongViewHolder(itemView);
@@ -58,26 +64,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         holder.textViewTitle.setText(currentSong.getTitle());
         holder.textViewArtist.setText(currentSong.getArtist());
 
-        Picasso.get()
-                .load(currentSong.getImageUrl())
-                .placeholder(R.drawable.music_image_placeholder)
-                .error(R.drawable.music_image_placeholder)
-                .into(holder.musicImage);
+        if (currentSong.getImageUrl() != null && !currentSong.getImageUrl().isEmpty()) {
+            Picasso.get().load(currentSong.getImageUrl()).into(holder.songImageView);
+        } else {
+            holder.songImageView.setImageResource(R.drawable.music_image_placeholder);
+        }
+
+        if (showFullHearts) {
+            holder.favoriteIcon.setBackgroundResource(R.drawable.heart_full);
+        } else {
+            holder.favoriteIcon.setBackgroundResource(R.drawable.heart);
+        }
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null && position != RecyclerView.NO_POSITION) {
-                listener.onSongClick(currentSong);
-            }
+            if (listener != null) listener.onSongClick(currentSong);
         });
 
         holder.favoriteIcon.setOnClickListener(v -> {
-            if (favoriteListener != null && position != RecyclerView.NO_POSITION) {
-                favoriteListener.onFavoriteClick(currentSong);
-                if (currentSong.isFavorite()) {
-                    holder.favoriteIcon.setImageResource(R.drawable.heart_full);
-                } else {
-                    holder.favoriteIcon.setImageResource(R.drawable.heart);
-                }
+            if (removeSongListener != null) {
+                removeSongListener.onRemoveSong(currentSong);
             }
         });
     }

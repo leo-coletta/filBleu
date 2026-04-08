@@ -41,7 +41,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
         Playlist currentPlaylist = playlistList.get(position);
         holder.textViewName.setText(currentPlaylist.getName());
-        
+
         if (currentPlaylist.getImageUrl() != null && !currentPlaylist.getImageUrl().isEmpty()) {
             Picasso.get().load(currentPlaylist.getImageUrl()).into(holder.imageView);
         } else {
@@ -49,9 +49,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null && position != RecyclerView.NO_POSITION) {
-                listener.onPlaylistClick(currentPlaylist);
-            }
+            if (listener != null) listener.onPlaylistClick(currentPlaylist);
         });
     }
 

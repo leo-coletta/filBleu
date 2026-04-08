@@ -6,7 +6,7 @@
     android:background="@color/shadowGrey"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MusicDisplayActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/music_display"
@@ -37,8 +37,7 @@
             app:layout_constraintBottom_toTopOf="@id/music_name"
             android:padding="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="50dp"
-            />
+            android:layout_marginBottom="50dp" />
 
         <TextView
             android:id="@+id/music_name"
@@ -62,6 +61,16 @@
             app:layout_constraintStart_toStartOf="parent"
             android:paddingHorizontal="20dp"
             android:paddingVertical="10dp" />
+
+        <ImageButton
+            android:id="@+id/like_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/heart"
+            app:layout_constraintTop_toTopOf="@id/music_name"
+            app:layout_constraintBottom_toBottomOf="@id/artist_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"/>
 
         <TextView
             android:id="@+id/music_time_played"
@@ -102,9 +111,7 @@
             android:gravity="center"
             android:paddingHorizontal="100dp"
             android:paddingTop="30dp"
-            android:paddingBottom="30dp"
-            >
-
+            android:paddingBottom="30dp">
 
             <ImageButton
                 android:id="@+id/back_button"
@@ -136,7 +143,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -147,8 +153,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="10dp"
-        android:background="@color/black"
-        >
+        android:background="@color/black">
 
         <ImageButton
             android:id="@+id/search_button"
@@ -157,9 +162,7 @@
             android:background="@drawable/loupe_logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="30dp"
-            >
-        </ImageButton>
+            android:layout_marginStart="30dp" />
 
         <ImageButton
             android:id="@+id/home_button"
@@ -168,8 +171,7 @@
             android:background="@drawable/home_logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-        </ImageButton>
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <ImageButton
             android:id="@+id/playlists_button"
@@ -178,8 +180,7 @@
             android:background="@drawable/bibliotheque_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="30dp">
-        </ImageButton>
+            android:layout_marginEnd="30dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

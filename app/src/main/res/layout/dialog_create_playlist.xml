@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/shadowGrey">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nouvelle playlist"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/playlist_name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nom de la playlist"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"/>
+
+    <Button
+        android:id="@+id/btn_create"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Créer"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/bleuMain"/>
+
+</LinearLayout>
