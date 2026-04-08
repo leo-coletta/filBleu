@@ -11,11 +11,16 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adaptateur gérant l'affichage d'une liste d'objets {@link Playlist} dans un {@link RecyclerView}.
+ * Charge dynamiquement l'image de la playlist ou applique un logo par défaut.
+ */
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> {
 
     private List<Playlist> playlistList = new ArrayList<>();
     private OnPlaylistClickListener listener;
 
+    /** Interface pour capter le clic sur une playlist. */
     public interface OnPlaylistClickListener {
         void onPlaylistClick(Playlist playlist);
     }
@@ -24,6 +29,10 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
         this.listener = listener;
     }
 
+    /**
+     * Met à jour la liste des playlists affichées.
+     * @param playlistList La nouvelle liste à afficher.
+     */
     public void setPlaylistList(List<Playlist> playlistList) {
         this.playlistList = playlistList;
         notifyDataSetChanged();
@@ -54,10 +63,9 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     }
 
     @Override
-    public int getItemCount() {
-        return playlistList.size();
-    }
+    public int getItemCount() { return playlistList.size(); }
 
+    /** Vue qui maintient les références des composants d'un item playlist. */
     static class PlaylistViewHolder extends RecyclerView.ViewHolder {
         TextView textViewName;
         ImageView imageView;

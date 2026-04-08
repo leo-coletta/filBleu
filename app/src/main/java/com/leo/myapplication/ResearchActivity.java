@@ -3,10 +3,8 @@ package com.leo.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +15,14 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activité dédiée à la recherche de morceaux de musique.
+ * <p>
+ * Charge le catalogue musical depuis Firebase Firestore et permet un filtrage en temps réel
+ * par titre ou artiste grâce à une barre de recherche {@link SearchView}.
+ * Initialise également la file de lecture ({@link PlaybackManager}) au clic sur un résultat.
+ * </p>
+ */
 public class ResearchActivity extends AppCompatActivity {
 
     private SongAdapter songAdapter;
@@ -78,19 +84,17 @@ public class ResearchActivity extends AppCompatActivity {
             }
         });
 
-        libraryButton.setOnClickListener( click -> {
-            startActivity(new Intent(getApplicationContext(), LibraryActivity.class));
-        });
-
-        profileButton.setOnClickListener(click -> {
-            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-        });
-
-        homeButton.setOnClickListener( click -> {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-        });
+        libraryButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), LibraryActivity.class)));
+        profileButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), ProfileActivity.class)));
+        homeButton.setOnClickListener(click -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
     }
 
+    /**
+     * Filtre la liste complète des musiques selon la requête saisie et met à jour l'adaptateur.
+     * Recherche correspondances partielles dans le titre ou l'artiste (insensible à la casse).
+     *
+     * @param text La chaîne de caractères à rechercher.
+     */
     private void filterSongs(String text) {
         List<Song> filteredList = new ArrayList<>();
         String query = text.toLowerCase().trim();

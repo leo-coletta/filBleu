@@ -1,4 +1,5 @@
 package com.leo.myapplication;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -6,24 +7,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adaptateur gérant l'affichage d'une liste d'objets {@link Song} dans un {@link RecyclerView}.
+ * <p>
+ * Relie les données musicales (titre, artiste, image via Picasso) à la vue {@code item_song}
+ * et capte les interactions utilisateurs (clics sur la piste et gestion des favoris).
+ * </p>
+ */
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
     private List<Song> songList = new ArrayList<>();
     private OnSongClickListener listener;
-
     private OnRemoveSongListener removeSongListener;
     private boolean showFullHearts = false;
 
+    /** Interface pour capter le clic sur une musique. */
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
 
+    /** Interface pour capter la suppression/retrait des favoris d'une musique. */
     public interface OnRemoveSongListener {
         void onRemoveSong(Song song);
     }
@@ -36,19 +43,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.removeSongListener = listener;
     }
 
+    /**
+     * Force l'affichage du cœur plein pour tous les éléments de la liste.
+     * @param show {@code true} pour remplir les cœurs, {@code false} sinon.
+     */
     public void setShowFullHearts(boolean show) {
         this.showFullHearts = show;
         notifyDataSetChanged();
     }
 
+    /**
+     * Met à jour la liste des musiques et rafraîchit l'affichage.
+     * @param songList La nouvelle liste de musiques.
+     */
     public void setSongList(List<Song> songList) {
         this.songList = new ArrayList<>(songList);
         notifyDataSetChanged();
     }
 
-    public List<Song> getSongList() {
-        return songList;
-    }
+    public List<Song> getSongList() { return songList; }
 
     @NonNull
     @Override
@@ -88,10 +101,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
     @Override
-    public int getItemCount() {
-        return songList.size();
-    }
+    public int getItemCount() { return songList.size(); }
 
+    /** Vue qui maintient les références des composants d'un item musique. */
     static class SongViewHolder extends RecyclerView.ViewHolder {
         TextView textViewTitle;
         TextView textViewArtist;

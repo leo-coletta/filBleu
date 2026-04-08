@@ -7,9 +7,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * Activité gérant la connexion d'un utilisateur existant.
+ * <p>
+ * Connecte l'utilisateur via Firebase Authentication avec son email et mot de passe,
+ * puis le redirige vers l'écran principal ({@link MainActivity}) en cas de succès.
+ * </p>
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText identifiantInput, passwordInput;
@@ -34,6 +40,10 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> attemptLogin());
     }
 
+    /**
+     * Tente de connecter l'utilisateur en utilisant Firebase Auth.
+     * Affiche un message d'erreur si les identifiants sont incorrects.
+     */
     private void attemptLogin() {
         String email = identifiantInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
