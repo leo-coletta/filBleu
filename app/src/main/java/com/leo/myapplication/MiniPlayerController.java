@@ -10,6 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import com.squareup.picasso.Picasso;
 
+/**
+ * Contrôleur dédié à la gestion de la logique et de l'interface utilisateur du mini lecteur
+ * de musique persistant (MiniPlayer). Ce composant est conçu pour être attaché à n'importe
+ * quelle activité possédant le layout adéquat pour assurer une continuité de la lecture
+ * lors de la navigation.
+ */
 public class MiniPlayerController {
 
     private AppCompatActivity activity;
@@ -22,12 +28,21 @@ public class MiniPlayerController {
     private ImageButton backButton;
     private Button musicDisplayButton;
 
+    /**
+     * Construit un nouveau contrôleur pour le mini lecteur et l'initialise.
+     *
+     * @param activity L'activité parente contenant le layout du mini lecteur à contrôler.
+     */
     public MiniPlayerController(AppCompatActivity activity) {
         this.activity = activity;
         initViews();
         setupListeners();
     }
 
+    /**
+     * Recherche, initialise et lie les composants visuels du mini lecteur (boutons, textes, images)
+     * à partir de la hiérarchie des vues de l'activité parente.
+     */
     private void initViews() {
         playerLayout = activity.findViewById(R.id.music_player);
 
@@ -42,6 +57,11 @@ public class MiniPlayerController {
         musicDisplayButton = activity.findViewById(R.id.music_display_button);
     }
 
+    /**
+     * Définit les comportements à adopter lors des interactions de l'utilisateur avec
+     * les boutons de contrôle du mini lecteur (lecture, pause, navigation inter-pistes
+     * via la file d'attente globale) et l'ouverture de l'écran de lecture détaillé.
+     */
     private void setupListeners() {
         if (playerLayout == null) return;
 
@@ -64,7 +84,6 @@ public class MiniPlayerController {
             }
         });
 
-        // Activation des boutons suivant et précédent
         nextButton.setOnClickListener(v -> {
             PlaybackManager.getInstance().skipNext();
             Song next = PlaybackManager.getInstance().getCurrentSong();
@@ -82,6 +101,11 @@ public class MiniPlayerController {
         });
     }
 
+    /**
+     * Synchronise dynamiquement l'interface utilisateur du mini lecteur (titre, nom de l'artiste,
+     * pochette de l'album, état du bouton lecture/pause) avec l'état en temps réel du gestionnaire
+     * de lecture (CurrentSongManager). Masque entièrement le conteneur si aucune piste n'est chargée.
+     */
     public void updateUI() {
         if (playerLayout == null) return;
 

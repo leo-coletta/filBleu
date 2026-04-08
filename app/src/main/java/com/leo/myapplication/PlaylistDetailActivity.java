@@ -20,6 +20,12 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activité spécialisée dans l'exploration et la gestion approfondie du contenu d'une
+ * playlist utilisateur. Elle récupère et liste de manière asynchrone les musiques ciblées,
+ * intègre des options de désélection, et coordonne le lancement contextuel de la file
+ * d'attente globale de lecture.
+ */
 public class PlaylistDetailActivity extends AppCompatActivity {
 
     private Playlist currentPlaylist;
@@ -30,6 +36,13 @@ public class PlaylistDetailActivity extends AppCompatActivity {
     private List<Song> loadedSongs = new ArrayList<>();
     private MiniPlayerController miniPlayerController;
 
+    /**
+     * Point d'entrée de l'activité. Paramètre l'architecture visuelle incluant le RecyclerView
+     * des musiques, identifie la playlist courante transmise par l'Intent parent, configure
+     * l'image de couverture et délègue le chargement des titres hébergés sur Firestore.
+     *
+     * @param savedInstanceState L'état du bundle de contexte conservé par le système Android.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +95,12 @@ public class PlaylistDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Itère sur la collection d'identifiants de la playlist pour effectuer une requête réseau
+     * sur chaque document de musique Firestore correspondant. Filtre activement les références
+     * nulles ou corrompues pour garantir l'intégrité de la liste locale (loadedSongs)
+     * et l'affichage séquentiel dans l'Adapter.
+     */
     private void fetchSongsForPlaylist() {
         if (currentPlaylist.getSongIds() == null || currentPlaylist.getSongIds().isEmpty()) {
             Toast.makeText(this, "Cette playlist est vide", Toast.LENGTH_SHORT).show();
@@ -92,7 +111,6 @@ public class PlaylistDetailActivity extends AppCompatActivity {
 
         loadedSongs.clear();
         for (String songId : currentPlaylist.getSongIds()) {
-            // Sécurité anti-crash si un ID est null dans Firebase
             if (songId == null || songId.trim().isEmpty()) continue;
 
             db.collection("songs").document(songId).get().addOnSuccessListener(doc -> {
@@ -110,8 +128,14 @@ public class PlaylistDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Intercepte l'événement de suppression généré par l'adaptateur pour extraire un ID de
+     * musique hors du tableau hébergé sur Firebase en appliquant FieldValue.arrayRemove().
+     * En cas de succès réseau, purge également la donnée de la mémoire locale de l'application.
+     *
+     * @param song L'objet Song porteur des informations ciblées pour la suppression.
+     */
     private void removeSongFromPlaylist(Song song) {
-        // Empêche un crash supplémentaire si la musique n'a pas d'ID
         if (auth.getCurrentUser() == null || song == null || song.getId() == null) return;
 
         db.collection("users").document(auth.getCurrentUser().getUid())
@@ -124,6 +148,11 @@ public class PlaylistDetailActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Rappelé automatiquement par le système d'exploitation Android lorsque l'interface
+     * utilisateur redevient visible au premier plan, forçant une synchronisation visuelle
+     * préventive de l'état du contrôleur de musique réduit.
+     */
     @Override
     protected void onResume() {
         super.onResume();

@@ -30,6 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activité dédiée à l'affichage immersif et détaillé de la musique en cours de lecture.
+ * Elle fournit à l'utilisateur des contrôles avancés de lecture, un retour visuel sur la
+ * progression via une SeekBar temporelle, ainsi que des interactions avec le système de
+ * favoris et la gestion avancée des playlists intégrées à Firebase.
+ */
 public class MusicDisplayActivity extends AppCompatActivity {
 
     private TextView songTextView;
@@ -49,6 +55,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
+    /**
+     * Phase d'initialisation du cycle de vie de l'activité. Configure la vue, instancie
+     * les services Firebase, lie les éléments XML au code, met en place les écouteurs
+     * temporels de la SeekBar et écoute les changements d'état du gestionnaire de lecture.
+     *
+     * @param savedInstanceState L'état de l'activité préalablement sauvegardé, s'il existe.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +143,10 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Intercepte la destruction de l'activité pour garantir l'arrêt complet des tâches
+     * planifiées en arrière-plan, empêchant ainsi les fuites de mémoire liées à la SeekBar.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -138,6 +155,14 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Orchestre l'animation de transition de la pochette de l'album lors du passage à une
+     * autre piste. Combine une animation de translation hors-champ et un fondu asynchrone
+     * avant d'introduire la nouvelle image depuis le côté opposé.
+     *
+     * @param song L'objet Song contenant les détails de la nouvelle musique à afficher.
+     * @param isNext Booléen déterminant la direction du glissement (true = suivant, false = précédent).
+     */
     private void animateMusicChange(Song song, boolean isNext) {
         float exitTarget = isNext ? -1000f : 1000f;
         float entryStart = isNext ? 1000f : -1000f;
@@ -177,6 +202,12 @@ public class MusicDisplayActivity extends AppCompatActivity {
         animOut.start();
     }
 
+    /**
+     * Met à jour les éléments textuels et graphiques de la vue avec les données
+     * fraîchement chargées d'une musique spécifique, et relance la vérification des favoris.
+     *
+     * @param song La musique dont les métadonnées doivent être affichées à l'écran.
+     */
     private void updateUI(Song song) {
         if (song == null) return;
         currentSong = song;
@@ -188,6 +219,12 @@ public class MusicDisplayActivity extends AppCompatActivity {
         checkIfLiked();
     }
 
+    /**
+     * Transmet l'instruction de lecture de la musique actuelle au gestionnaire audio
+     * global et s'assure que la durée de la SeekBar correspond au flux audio reçu.
+     *
+     * @param song La piste musicale cible contenant l'URL audio valide.
+     */
     private void startPlayback(Song song) {
         if (song != null && song.getAudioUrl() != null) {
             CurrentSongManager.getInstance().setCurrentSong(song);
@@ -201,6 +238,10 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Paramètre l'action principale du bouton central de contrôle pour alterner en
+     * temps réel entre les états de lecture active et de pause.
+     */
     private void setupPlayPauseLogic() {
         playPauseButton.setOnClickListener(v -> {
             if (CurrentSongManager.getInstance().isPlaying()) {
@@ -213,6 +254,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fonction utilitaire convertissant un temps absolu fourni par le lecteur audio
+     * en une chaîne de caractères formatée en minutes et secondes (MM:SS).
+     *
+     * @param time Le temps total évalué en millisecondes.
+     * @return La représentation textuelle du temps pour l'affichage utilisateur.
+     */
     private String createTimeLabel(int time) {
         int min = time / 1000 / 60;
         int sec = time / 1000 % 60;
@@ -222,6 +270,11 @@ public class MusicDisplayActivity extends AppCompatActivity {
         return timeLabel;
     }
 
+    /**
+     * Établit les interfaces d'écoute pour la SeekBar afin de gérer le déplacement manuel
+     * du curseur de progression par l'utilisateur, en interrompant temporairement le flux
+     * asynchrone lors du toucher.
+     */
     private void setupSeekBar() {
         if(seekBar == null) return;
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -243,6 +296,10 @@ public class MusicDisplayActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Lance un processus récurrent posté sur le thread principal pour lire la position
+     * actuelle de la musique dans le gestionnaire et actualiser visuellement la SeekBar.
+     */
     private void updateSeekBar() {
         if (CurrentSongManager.getInstance().getCurrentSong() != null && seekBar != null) {
             int currentPosition = CurrentSongManager.getInstance().getCurrentPosition();
@@ -255,9 +312,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Interroge de manière asynchrone la base de données Firestore de l'utilisateur connecté
+     * pour savoir si la musique affichée réside actuellement dans sa playlist système des favoris.
+     */
     private void checkIfLiked() {
         if (auth.getCurrentUser() == null || currentSong == null) return;
-        likeButton.setBackgroundResource(R.drawable.heart); // Reset par défaut
+        likeButton.setBackgroundResource(R.drawable.heart);
         db.collection("users").document(auth.getCurrentUser().getUid())
                 .collection("playlists").document("liked_songs").get()
                 .addOnSuccessListener(doc -> {
@@ -270,6 +331,11 @@ public class MusicDisplayActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Agit comme le déclencheur principal du bouton "Cœur". Si la piste n'a jamais été likée,
+     * elle l'ajoute immédiatement à la playlist "Titres likés". Si elle l'est déjà, elle déploie
+     * un menu étendu pour une gestion sélective au sein des multiples playlists personnalisées.
+     */
     private void toggleLikeAndShowMenu() {
         if (auth.getCurrentUser() == null || currentSong == null) return;
         String uid = auth.getCurrentUser().getUid();
@@ -296,6 +362,13 @@ public class MusicDisplayActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Construit et affiche une interface superposée (BottomSheetDialog) récupérant en temps
+     * réel toutes les playlists Firestore de l'utilisateur. Chaque option permet d'ajouter
+     * ou de soustraire la musique ciblée via une mise à jour atomique de la base de données.
+     *
+     * @param songId L'identifiant unique de la musique servant de référence pour Firestore.
+     */
     private void showPlaylistsMenu(String songId) {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_playlists);

@@ -21,6 +21,12 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activité principale représentant le point d'entrée de l'application après la connexion.
+ * Elle gère l'affichage du message d'accueil personnalisé, la présentation dynamique
+ * des musiques recommandées, la liste des titres récemment écoutés, ainsi que
+ * l'intégration du mini lecteur de musique global (MiniPlayer).
+ */
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "Fil Bleu + " + getClass().getSimpleName();
@@ -31,11 +37,17 @@ public class MainActivity extends AppCompatActivity {
     private TextView welcomeText;
     private FirebaseAuth auth;
 
+    /**
+     * Initialise l'activité, configure les composants de l'interface utilisateur,
+     * établit les connexions à la base de données Firestore et met en place les écouteurs
+     * d'événements pour la navigation et le lancement de la lecture musicale.
+     *
+     * @param savedInstanceState L'état de l'instance précédemment sauvegardé, s'il y en a un.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -119,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Génère et affiche dynamiquement la liste des pochettes des musiques recommandées
+     * dans un conteneur horizontal. Configure également l'action de clic sur chaque pochette
+     * pour initialiser la file d'attente globale et lancer l'activité de lecture détaillée.
+     *
+     * @param songs La liste des objets Song récupérés depuis Firestore à afficher.
+     */
     private void displayRecommended(List<Song> songs) {
         recommendedContainer.removeAllViews();
 
@@ -141,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             imageView.setOnClickListener(v -> {
-                // Initialisation de la file d'attente ajoutée ici
                 PlaybackManager.getInstance().initQueue(songs, songs.indexOf(song));
 
                 Intent intent = new Intent(MainActivity.this, MusicDisplayActivity.class);
@@ -153,6 +171,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Appelé lorsque l'activité reprend le premier plan.
+     * Assure la mise à jour visuelle du mini lecteur en fonction de la lecture en cours
+     * et rafraîchit la liste des musiques récemment écoutées.
+     */
     @Override
     protected void onResume() {
         super.onResume();
