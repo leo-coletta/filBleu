@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.leo.myapplication.controllers.MiniPlayerController;
+import com.leo.myapplication.R;
 
 /**
  * Activité dédiée à la gestion du profil utilisateur.

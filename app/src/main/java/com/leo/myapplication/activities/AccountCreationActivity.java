@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.os.Bundle;
 import android.util.Patterns;
@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.auth.FirebaseAuth;
+import com.leo.myapplication.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class AccountCreationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.account_creation_layout);
+        setContentView(R.layout.activity_account_creation);
 
         identifiantInput = findViewById(R.id.identifiant_input);
         passwordInput = findViewById(R.id.password_input);

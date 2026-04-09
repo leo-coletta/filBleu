@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.leo.myapplication.R;
 
 /**
  * Activité gérant la connexion d'un utilisateur existant.
@@ -25,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.connection_layout);
+        setContentView(R.layout.activity_login);
 
         identifiantInput = findViewById(R.id.identifiant_input);
         passwordInput = findViewById(R.id.password_input);

@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.leo.myapplication.R;
+import com.leo.myapplication.models.Song;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;

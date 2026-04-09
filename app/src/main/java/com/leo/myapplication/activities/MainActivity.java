@@ -1,9 +1,8 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,6 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.leo.myapplication.logic.CurrentSongManager;
+import com.leo.myapplication.controllers.MiniPlayerController;
+import com.leo.myapplication.logic.PlaybackManager;
+import com.leo.myapplication.R;
+import com.leo.myapplication.models.Song;
+import com.leo.myapplication.adapters.SongAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.leo.myapplication.models.Playlist;
+import com.leo.myapplication.R;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +45,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     @Override
     public PlaylistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.activity_playlist, parent, false);
+                .inflate(R.layout.playlist_layout, parent, false);
         return new PlaylistViewHolder(itemView);
     }
 

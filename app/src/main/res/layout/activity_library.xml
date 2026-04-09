@@ -6,7 +6,7 @@
     android:background="@color/shadowGrey"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LibraryActivity">
+    tools:context=".activities.LibraryActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topbar"
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/activity_playlist" />
+                tools:listitem="@layout/playlist_layout" />
 
         </LinearLayout>
     </ScrollView>

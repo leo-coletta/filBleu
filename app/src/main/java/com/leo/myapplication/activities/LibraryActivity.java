@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.leo.myapplication.controllers.MiniPlayerController;
+import com.leo.myapplication.models.Playlist;
+import com.leo.myapplication.adapters.PlaylistAdapter;
+import com.leo.myapplication.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

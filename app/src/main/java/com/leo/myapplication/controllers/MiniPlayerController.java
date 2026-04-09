@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.controllers;
 
 import android.content.Intent;
 import android.view.View;
@@ -8,6 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.leo.myapplication.R;
+import com.leo.myapplication.activities.MusicDisplayActivity;
+import com.leo.myapplication.logic.CurrentSongManager;
+import com.leo.myapplication.logic.PlaybackManager;
+import com.leo.myapplication.models.Song;
 import com.squareup.picasso.Picasso;
 
 /**

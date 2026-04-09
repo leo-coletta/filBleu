@@ -1,4 +1,6 @@
-package com.leo.myapplication;
+package com.leo.myapplication.logic;
+
+import com.leo.myapplication.models.Song;
 
 import java.util.List;
 

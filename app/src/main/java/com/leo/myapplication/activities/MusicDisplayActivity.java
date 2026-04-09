@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
@@ -23,6 +23,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.leo.myapplication.logic.CurrentSongManager;
+import com.leo.myapplication.logic.PlaybackManager;
+import com.leo.myapplication.R;
+import com.leo.myapplication.models.Song;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;

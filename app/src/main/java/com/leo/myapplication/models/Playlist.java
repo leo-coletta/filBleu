@@ -1,4 +1,4 @@
-package com.leo.myapplication;
+package com.leo.myapplication.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

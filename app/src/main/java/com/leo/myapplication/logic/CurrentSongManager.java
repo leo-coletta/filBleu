@@ -1,7 +1,10 @@
-package com.leo.myapplication;
+package com.leo.myapplication.logic;
 
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+
+import com.leo.myapplication.models.Song;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
