@@ -89,48 +89,6 @@ public class PlaybackManager {
     }
 
     /**
-     * Prépare et lance la lecture audio depuis une URL distante.
-     *
-     * @param url              L'URL du fichier audio.
-     * @param preparedListener Callback déclenché lorsque le média est prêt à être joué.
-     */
-    public void play(String url, MediaPlayer.OnPreparedListener preparedListener) {
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA).build());
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(preparedListener);
-        } catch (IOException e) {
-            Log.e("PlaybackManager", "Erreur audio", e);
-        }
-    }
-
-    /**
-     * Alterne entre les états "Lecture" et "Pause".
-     */
-    public void togglePlayPause() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) mediaPlayer.pause();
-            else mediaPlayer.start();
-        }
-    }
-
-    /**
-     * Vérifie si un média est actuellement en cours de lecture.
-     *
-     * @return {@code true} si l'audio joue, {@code false} sinon.
-     */
-    public boolean isPlaying() {
-        return mediaPlayer != null && mediaPlayer.isPlaying();
-    }
-
-    /**
      * Récupère le morceau actuellement défini dans la file d'attente.
      *
      * @return L'objet {@link Song} en cours.
