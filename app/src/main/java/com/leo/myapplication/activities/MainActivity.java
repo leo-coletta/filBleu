@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         int marginPx = (int) (15 * density);
 
         for (Song song : songs) {
-            ImageView imageView = new ImageView(this);
+            ImageView imageView = new ImageView(getApplicationContext());
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(sizePx, sizePx);
             layoutParams.setMarginEnd(marginPx);

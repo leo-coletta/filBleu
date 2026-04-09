@@ -106,11 +106,11 @@ public class ProfileActivity extends AppCompatActivity {
             String newPass = newPasswordField.getText().toString().trim();
 
             if (oldPass.isEmpty() || newPass.isEmpty()) {
-                Toast.makeText(this, "Remplissez les deux champs", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Remplissez les deux champs", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (newPass.length() < 6) {
-                Toast.makeText(this, "Le nouveau mot de passe est trop court", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Le nouveau mot de passe est trop court", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -146,8 +146,8 @@ public class ProfileActivity extends AppCompatActivity {
         if (newUsername.isEmpty()) return;
         db.collection("users").document(currentUser.getUid())
                 .update("username", newUsername)
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Nom d'utilisateur mis à jour", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(aVoid -> Toast.makeText(getApplicationContext(), "Nom d'utilisateur mis à jour", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
     }
 
     /**
@@ -158,11 +158,11 @@ public class ProfileActivity extends AppCompatActivity {
         if (newEmail.isEmpty() || newEmail.equals(currentUser.getEmail())) return;
         currentUser.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Lien de validation envoyé à " + newEmail, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Lien de validation envoyé à " + newEmail, Toast.LENGTH_LONG).show();
                 emailField.setText(currentUser.getEmail());
             } else {
                 String errorMsg = task.getException() != null ? task.getException().getMessage() : "Erreur inconnue";
-                Toast.makeText(this, "Échec : " + errorMsg, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Échec : " + errorMsg, Toast.LENGTH_LONG).show();
                 emailField.setText(currentUser.getEmail());
             }
         });
@@ -179,16 +179,16 @@ public class ProfileActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 currentUser.updatePassword(newPass).addOnCompleteListener(updateTask -> {
                     if (updateTask.isSuccessful()) {
-                        Toast.makeText(this, "Mot de passe modifié", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Mot de passe modifié", Toast.LENGTH_SHORT).show();
                         passwordContainer.setVisibility(View.GONE);
                         oldPasswordField.setText("");
                         newPasswordField.setText("");
                     } else {
-                        Toast.makeText(this, "Erreur lors de la modification", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Erreur lors de la modification", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
-                Toast.makeText(this, "Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
             }
         });
     }

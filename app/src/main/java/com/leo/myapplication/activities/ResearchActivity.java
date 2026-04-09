@@ -45,7 +45,7 @@ public class ResearchActivity extends AppCompatActivity {
         ImageButton profileButton = findViewById(R.id.profile_button);
 
         RecyclerView recyclerView = findViewById(R.id.results_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
         songAdapter = new SongAdapter();
         recyclerView.setAdapter(songAdapter);

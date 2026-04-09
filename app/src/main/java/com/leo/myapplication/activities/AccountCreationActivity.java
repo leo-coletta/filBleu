@@ -52,17 +52,17 @@ public class AccountCreationActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
 
         if (identifiant.isEmpty() || password.isEmpty() || email.isEmpty()) {
-            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Format d'email invalide", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Format d'email invalide", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (password.length() < 6) {
-            Toast.makeText(this, "Le mot de passe doit contenir au moins 6 caractères", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Le mot de passe doit contenir au moins 6 caractères", Toast.LENGTH_SHORT).show();
             return;
         }
 

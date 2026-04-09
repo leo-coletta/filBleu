@@ -102,9 +102,9 @@ public class MusicDisplayActivity extends AppCompatActivity {
         previousButton.setOnClickListener(v -> manager.skipPrevious());
         likeButton.setOnClickListener(v -> toggleLikeAndShowMenu());
 
-        homeButton.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
-        searchButton.setOnClickListener(v -> startActivity(new Intent(this, ResearchActivity.class)));
-        libraryButton.setOnClickListener(v -> startActivity(new Intent(this, LibraryActivity.class)));
+        homeButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), MainActivity.class)));
+        searchButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), ResearchActivity.class)));
+        libraryButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), LibraryActivity.class)));
         backButton.setOnClickListener(v -> finish());
 
         Intent intent = getIntent();
@@ -171,11 +171,11 @@ public class MusicDisplayActivity extends AppCompatActivity {
         float exitTarget = isNext ? -1000f : 1000f;
         float entryStart = isNext ? 1000f : -1000f;
 
-        ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.slide);
+        ObjectAnimator slideOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.slide);
         slideOut.setTarget(musicImageView);
         slideOut.setFloatValues(0f, exitTarget);
 
-        ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.fade);
+        ObjectAnimator fadeOut = (ObjectAnimator) AnimatorInflater.loadAnimator(getApplicationContext(), R.animator.fade);
         fadeOut.setTarget(musicImageView);
         fadeOut.setFloatValues(1f, 0f);
 
@@ -374,7 +374,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
      * @param songId L'identifiant unique de la musique servant de référence pour Firestore.
      */
     private void showPlaylistsMenu(String songId) {
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        BottomSheetDialog dialog = new BottomSheetDialog(getApplicationContext());
         dialog.setContentView(R.layout.dialog_playlists);
         LinearLayout container = dialog.findViewById(R.id.playlists_container);
 
@@ -384,7 +384,7 @@ public class MusicDisplayActivity extends AppCompatActivity {
                 .collection("playlists").get()
                 .addOnSuccessListener(query -> {
                     for (DocumentSnapshot doc : query.getDocuments()) {
-                        CheckBox cb = new CheckBox(this);
+                        CheckBox cb = new CheckBox(getApplicationContext());
                         cb.setText(doc.getString("name"));
                         cb.setTextColor(getResources().getColor(R.color.white));
 

@@ -56,7 +56,7 @@ public class LibraryActivity extends AppCompatActivity {
         ImageButton btnCreatePlaylist = findViewById(R.id.btn_create_playlist);
 
         playlistsRecyclerView = findViewById(R.id.playlists_recycler_view);
-        playlistsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        playlistsRecyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         playlistAdapter = new PlaylistAdapter();
         playlistsRecyclerView.setAdapter(playlistAdapter);
 
@@ -88,7 +88,7 @@ public class LibraryActivity extends AppCompatActivity {
      * de saisir le nom d'une nouvelle playlist, puis l'enregistre dans Firestore.
      */
     private void showCreatePlaylistDialog() {
-        Dialog dialog = new Dialog(this);
+        Dialog dialog = new Dialog(getApplicationContext());
         dialog.setContentView(R.layout.dialog_create_playlist);
 
         if (dialog.getWindow() != null) {

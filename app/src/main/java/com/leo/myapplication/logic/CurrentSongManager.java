@@ -63,7 +63,7 @@ public class CurrentSongManager {
 
         recentSongs.add(0, song);
 
-        if (recentSongs.size() > 10) {
+        if (recentSongs.size() > 3) {
             recentSongs.remove(recentSongs.size() - 1);
         }
 

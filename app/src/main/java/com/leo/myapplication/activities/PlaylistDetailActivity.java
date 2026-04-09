@@ -67,7 +67,7 @@ public class PlaylistDetailActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
 
-        songsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        songsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         songAdapter = new SongAdapter();
         songAdapter.setShowFullHearts(true);
         songsRecyclerView.setAdapter(songAdapter);
@@ -110,7 +110,7 @@ public class PlaylistDetailActivity extends AppCompatActivity {
      */
     private void fetchSongsForPlaylist() {
         if (currentPlaylist.getSongIds() == null || currentPlaylist.getSongIds().isEmpty()) {
-            Toast.makeText(this, "Cette playlist est vide", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Cette playlist est vide", Toast.LENGTH_SHORT).show();
             loadedSongs.clear();
             songAdapter.setSongList(loadedSongs);
             return;
@@ -149,7 +149,7 @@ public class PlaylistDetailActivity extends AppCompatActivity {
                 .collection("playlists").document(currentPlaylist.getId())
                 .update("songIds", FieldValue.arrayRemove(song.getId()))
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Musique retirée", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Musique retirée", Toast.LENGTH_SHORT).show();
                     loadedSongs.remove(song);
                     songAdapter.setSongList(new ArrayList<>(loadedSongs));
                 });
